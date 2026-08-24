@@ -1,0 +1,42 @@
+package templates
+
+templ Layout(title string) {
+	<!DOCTYPE html>
+    <head>
+        <meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+        if title != "" {
+				<title>Yog Mehta | { title }</title>
+			} else {
+				<title>Yog Mehta</title>
+		}
+
+        <link rel="icon" type="image/svg+xml" href="/static/images/logo.png" />
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+        <!-- Link compiled Tailwind CSS -->
+		<link rel="stylesheet" href="/static/css/output.css"/>
+    </head>
+    <body class="bg-[#181817] text-neutral-200 font-sans antialiased">
+		@Header()
+		<main class="container mx-auto p-4">
+			{ children... }
+		</main>
+		@Footer()
+	</body>
+}
+
+templ Header() {
+	<header>
+        <nav></nav>
+    </header>
+}
+
+templ Footer() {
+	<footer>
+    </footer>
+}
