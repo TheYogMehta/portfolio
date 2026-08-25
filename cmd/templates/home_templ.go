@@ -43,27 +43,27 @@ func Home(stats services.GitHubStats) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"py-12 sm:py-20 max-w-full mx-auto px-4 sm:px-6 lg:px-5\"><div class=\"grid grid-cols-1 lg:grid-cols-12 gap-20 items-end\"><div class=\"lg:col-span-6 space-y-5\"><h1 class=\"text-4xl sm:text-5xl font-bold tracking-tight text-white font-cinzel\">Yog Mehta</h1><p class=\"text-base sm:text-lg text-neutral-300 leading-relaxed\">I’m a software engineer specializing in Go backend systems and performance. My work ranges from zero-knowledge encryption and WebSockets to open-source media tools.</p><p class=\"text-sm text-neutral-400 font-mono pb-2\">Based in Mumbai • Building in Go</p><!-- Line spanning ONLY under the left column --><hr class=\"border-neutral-800\"></div><!-- Github Stats Card --><div class=\"lg:col-span-6\"><div class=\"border border-neutral-800 rounded-2xl p-6 sm:p-7 space-y-5 shadow-2xl\"><div class=\"flex items-center justify-between border-b border-neutral-800 pb-4\"><div class=\"flex items-center gap-2.5\"><img src=\"/static/icons/github.svg\" alt=\"GitHub\" class=\"size-5 invert\"> <a href=\"https://github.com/theYogMehta\" target=\"_blank\" rel=\"noreferrer\" class=\"text-base font-mono text-neutral-200 hover:text-white transition-colors\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"min-h-[75vh] lg:min-h-[80vh] flex flex-col justify-center py-12 sm:py-16 max-w-full mx-auto px-4 sm:px-6 lg:px-5\"><div class=\"grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center\"><div class=\"lg:col-span-6 space-y-6\"><div class=\"space-y-2.5\"><h1 class=\"text-4xl sm:text-5xl font-bold tracking-tight text-white font-cinzel\">Hi, I’m Yog Mehta</h1><p style=\"font-family: var(--font-sans, sans-serif); font-size: 0.8125rem; color: #a3a3a3; display: flex; align-items: center; gap: 0.375rem; font-weight: 500; letter-spacing: 0.01em;\"><span>Based in Mumbai</span> <img src=\"/static/icons/location.svg\" alt=\"Location\" draggable=\"false\" style=\"width: 13px; height: 13px; min-width: 13px; max-width: 13px; display: inline-block; vertical-align: middle; opacity: 0.7;\"></p></div><p class=\"text-base sm:text-lg text-neutral-300 leading-relaxed font-sans\">Backend Developer working primarily with Go and Node.js. <br>Graduated in Web Technologies (CGPA 9.85) and previously interned as a Backend Developer at Sort Solution. <br>Recent work includes  <a href=\"https://github.com/theYogMehta\" target=\"_blank\" rel=\"noreferrer\" class=\"text-white underline underline-offset-4 decoration-neutral-700 hover:decoration-neutral-400 transition-colors font-medium\">CryptNode</a>, a zero-knowledge encrypted chat platform, and  <a href=\"https://github.com/theYogMehta\" target=\"_blank\" rel=\"noreferrer\" class=\"text-white underline underline-offset-4 decoration-neutral-700 hover:decoration-neutral-400 transition-colors font-medium\">StrawVerse</a>, an open-source media manager that reached 60+ GitHub stars.</p><div style=\"display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; padding-top: 0.5rem;\"><a href=\"/projects\" style=\"display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.375rem; background-color: #ffffff; color: #000000; border-radius: 0.75rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; font-weight: 500; text-decoration: none; transition: all 0.2s;\"><span>View Projects</span> <span>↗</span></a> <a href=\"/static/resume.pdf\" target=\"_blank\" rel=\"noreferrer\" style=\"display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.375rem; background-color: #1e1e1e; color: #e5e5e5; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 0.75rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; font-weight: 500; text-decoration: none; transition: all 0.2s;\"><span>Resume</span> <span>↗</span></a></div></div><div class=\"lg:col-span-6\"><a href=\"https://github.com/theYogMehta\" target=\"_blank\" rel=\"noreferrer\" class=\"block border border-neutral-800/90 hover:border-neutral-700/80 rounded-2xl p-6 sm:p-7 space-y-5 shadow-2xl bg-[#141413] hover:bg-[#181817] transition-all duration-300 group cursor-pointer\"><div class=\"flex items-center justify-between border-b border-neutral-800 pb-4\"><div class=\"flex items-center gap-3\"><img src=\"/static/icons/github.svg\" alt=\"GitHub\" draggable=\"false\" class=\"size-7 sm:size-8 invert opacity-95 group-hover:scale-105 transition-transform\"> <span class=\"text-lg font-mono text-neutral-200 group-hover:text-white transition-colors font-medium\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs("@theYogMehta ↗")
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs("@theYogMehta")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 39, Col: 29}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 71, Col: 25}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</a></div></div><!-- Live GitHub Heatmap --><div class=\"overflow-hidden py-2\"><img src=\"/static/images/github_chart.svg\" alt=\"GitHub Contributions\" class=\"w-full h-auto rounded object-contain\"></div><!-- Commit Stats & Last Updated At --><div class=\"flex items-center justify-between text-xs text-neutral-400 font-mono pt-1\"><span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</span></div></div><!-- Live GitHub Heatmap --><div class=\"overflow-hidden py-2 min-h-[80px] flex items-center justify-center\"><img src=\"/static/images/github_chart.svg\" alt=\"GitHub Contributions\" draggable=\"false\" class=\"w-full h-auto rounded object-contain filter brightness-110\"></div><!-- Commit Stats & Last Updated At --><div class=\"flex items-center justify-between text-xs text-neutral-400 font-mono pt-1\"><span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(stats.Commits)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 55, Col: 28}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 88, Col: 28}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -76,13 +76,13 @@ func Home(stats services.GitHubStats) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(stats.LastUpdated)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 56, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 89, Col: 65}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</span></div></div></div></div></section>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</span></div></a></div></div></section>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

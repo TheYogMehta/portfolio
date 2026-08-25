@@ -15,7 +15,7 @@ templ Layout(title string) {
         <link rel="icon" type="image/png" href="/static/images/logo.png" />
 		<link rel="stylesheet" href="/static/css/output.css"/>
 
-		<!-- Google Analytics -->
+		<!-- Google Analytics (gtag.js) -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=G-6M5V3RVK8T"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
@@ -53,7 +53,6 @@ templ Header() {
 							@QuickLink("About", "/about")
 							@QuickLink("Projects", "/projects")
 							@QuickLink("Contact", "/contact")
-							@QuickLink("Resume", "/static/resume.pdf")
 						</ul>
 					</nav>
 				</div>
@@ -106,28 +105,28 @@ templ Header() {
 
 templ Footer() {
 	<footer>
-		<div class="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
-			<!-- quick links -->
-			<ul class="mt-12 flex flex-wrap justify-center gap-6 md:gap-8 lg:gap-12">
-				@QuickLink("About", "/about")
-				@QuickLink("Projects", "/projects")
-				@QuickLink("Contact", "/contact")
-				@QuickLink("Resume", "/static/resume.pdf")
-   			</ul>
+		<div class="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 border-t border-neutral-800/60 mt-16">
+			<div class="flex flex-col sm:flex-row items-center justify-between gap-6">
 
-			<!-- Social Links -->
-			<ul class="mt-12 flex justify-center gap-6 md:gap-8">
-				@SocialLink("https://github.com/theYogMehta/", "/static/icons/github.svg", "GitHub")
-				@SocialLink("https://www.linkedin.com/in/yog-mehta-143b80231/", "/static/icons/linkedin.svg", "LinkedIn")
-			</ul>
+				<!-- Social Links -->
+				<ul class="flex items-center gap-6">
+					@SocialLink("https://github.com/theYogMehta/", "/static/icons/github.svg", "GitHub")
+					@SocialLink("https://www.linkedin.com/in/yog-mehta-143b80231/", "/static/icons/linkedin.svg", "LinkedIn")
+				</ul>
+
+				<p class="text-xs font-mono text-neutral-500 text-center sm:text-left flex items-center justify-center sm:justify-start gap-2">
+					<img src="/static/icons/copyright.svg" alt="Copyright" draggable="false" style="width: 12px; height: 12px; min-width: 12px; max-width: 12px; display: inline-block; vertical-align: middle; opacity: 0.6; margin-right: 2px;" />
+					<span>2026 Yog Mehta • Built with Go & Templ</span>
+				</p>
+			</div>
 		</div>
-</footer>
+	</footer>
 }
 
 templ QuickLink(name string, href string) {
 	<li>
 		<a 
-			class="text-gray-700 transition hover:text-gray-700/75 dark:text-white dark:hover:text-white/75" 
+			class="text-neutral-400 transition hover:text-white" 
 			href={ templ.SafeURL(href) }
 		>
 			{ name }
@@ -141,10 +140,10 @@ templ SocialLink(href string, iconPath string, label string) {
 			href={ templ.SafeURL(href) } 
 			target="_blank" 
 			rel="noreferrer" 
-			class="text-gray-400 hover:text-white transition-colors"
+			class="text-neutral-400 hover:text-white transition-colors"
 		>
 			<span class="sr-only">{ label }</span>
-			<img src={ iconPath } alt={ label } class="size-6 invert" />
+			<img src={ iconPath } alt={ label } draggable="false" class="size-5 invert opacity-80 hover:opacity-100 transition-opacity" />
 		</a>
 	</li>
 }

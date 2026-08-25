@@ -26,7 +26,8 @@ func GetGitHubStats(ctx context.Context, db *sql.DB) GitHubStats {
 	var currentStats GitHubStats
 	var updatedAt time.Time
 
-	if _, err := os.Stat("static/images/github_chart.svg"); os.IsNotExist(err) {
+	fi, errStat := os.Stat("static/images/github_chart.svg")
+	if os.IsNotExist(errStat) || fi.Size() == 0 {
 		downloadLatestChartSVG()
 	}
 
@@ -77,9 +78,10 @@ func fetchCommitCountFromAPI() (string, bool) {
 }
 
 func downloadLatestChartSVG() {
-	client := http.Client{Timeout: 5 * time.Second}
-	resp, err := client.Get("https://ghchart.rshah.org/39d353/theYogMehta")
+	client := http.Client{Timeout: 8 * time.Second}
+	resp, err := client.Get("https://ghchart.rshah.org/e5e5e5/theYogMehta")
 	if err == nil && resp.StatusCode == http.StatusOK {
+		_ = os.MkdirAll("static/images", 0755)
 		file, err := os.Create("static/images/github_chart.svg")
 		if err == nil {
 			io.Copy(file, resp.Body)

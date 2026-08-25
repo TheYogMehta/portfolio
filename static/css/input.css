@@ -64,3 +64,14 @@
   --font-mono: "Geist Mono", monospace;
   --font-cinzel: "Cinzel";
 }
+
+/* Prevent image dragging and text selection on images globally */
+img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
