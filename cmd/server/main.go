@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"portfolio/cmd/templates"
 	"portfolio/internal/db"
@@ -41,28 +42,34 @@ func main() {
 	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
+	// max 5 attempts per min
+	authRateLimiter := middleware.NewRateLimiter(5, 1*time.Minute)
+
 	// Public routes
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		stats := services.GetGitHubStats(ctx, DB)
 		templ.Handler(templates.Home(stats)).ServeHTTP(w, r)
 	})
-	http.Handle("/login", templ.Handler(templates.Login()))
+
+	// Rate-limited Auth routes
+	http.Handle("/login", authRateLimiter.Limit(http.HandlerFunc(handlers.HandleLogin)))
+	http.Handle("/auth/google/login", authRateLimiter.Limit(http.HandlerFunc(handlers.HandleGoogleLogin)))
+	http.Handle("/auth/google/callback", authRateLimiter.Limit(http.HandlerFunc(handlers.HandleGoogleCallback)))
+
 	http.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, &http.Cookie{
 			Name:     "admin_token",
-        	Value:    "",
-        	Path:     "/",
-        	MaxAge:   -1,
-        	HttpOnly: true,
-    	})
+			Value:    "",
+			Path:     "/",
+			MaxAge:   -1,
+			HttpOnly: true,
+		})
 		http.Redirect(w, r, "/", http.StatusFound)
 	})
-	http.HandleFunc("/auth/google/login", handlers.HandleGoogleLogin)
-	http.HandleFunc("/auth/google/callback", handlers.HandleGoogleCallback)
-	
+
 	// Protected Admin route (wrapped by middleware)
-	http.Handle("/dashboard", middleware.RequireAdminAuth(http.HandlerFunc(handlers.HandleDashboard)))
+	http.Handle("/dashboard", middleware.RequireAdminAuth(templ.Handler(templates.Dashboard())))
 
 	port := os.Getenv("PORT")
 	if port == "" {

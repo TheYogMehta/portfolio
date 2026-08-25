@@ -41,7 +41,7 @@ func Login() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"padding-top: 22vh; padding-bottom: 15vh; width: 100%; text-align: center;\" class=\"flex flex-col items-center justify-center\"><div style=\"margin-bottom: 2rem; text-align: center; width: 100%;\" class=\"flex flex-col items-center justify-center\"><h1 style=\"text-align: center; width: 100%;\" class=\"text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white font-cinzel\">ADMIN ACCESS ONLY</h1></div><div style=\"margin-left: auto; margin-right: auto;\" class=\"w-full max-w-xs px-4\"><a href=\"/auth/google/login\" class=\"flex items-center justify-center w-full gap-3 bg-neutral-900 hover:bg-neutral-800 rounded-xl px-6 py-3.5 text-sm sm:text-base font-medium text-white transition-all shadow-xl focus:outline-none border border-neutral-800/60\"><img src=\"/static/icons/google.svg\" alt=\"Google\" class=\"size-5\"> <span>Continue with Google</span></a></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"padding-top: 22vh; padding-bottom: 15vh; width: 100%; text-align: center;\" class=\"flex flex-col items-center justify-center\"><div style=\"margin-bottom: 3rem; text-align: center; width: 100%;\" class=\"flex flex-col items-center justify-center\"><h1 style=\"text-align: center; width: 100%;\" class=\"text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white font-cinzel\">ADMIN ACCESS ONLY</h1></div><div style=\"margin-left: auto; margin-right: auto;\" class=\"w-full max-w-sm px-4\"><a href=\"/auth/google/login\" class=\"flex items-center justify-center w-full gap-3 bg-neutral-900 hover:bg-neutral-800 rounded-xl px-8 py-4.5 text-lg sm:text-xl font-medium text-white transition-all shadow-xl focus:outline-none\"><img src=\"/static/icons/google.svg\" alt=\"Google\" class=\"size-6\"> <span>Continue with Google</span></a></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -88,35 +88,30 @@ func ErrorLoginIn(reason string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div style=\"padding-top: 22vh; padding-bottom: 15vh; width: 100%; text-align: center;\" class=\"flex flex-col items-center justify-center space-y-6\"><div style=\"text-align: center; width: 100%;\" class=\"flex flex-col items-center justify-center space-y-3\"><h1 style=\"text-align: center; width: 100%;\" class=\"text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white font-cinzel\">ACCESS DENIED</h1>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div style=\"padding-top: 22vh; padding-bottom: 15vh; width: 100%; text-align: center;\" class=\"flex flex-col items-center justify-center space-y-8\"><div style=\"text-align: center; width: 100%;\" class=\"flex flex-col items-center justify-center space-y-4\"><h1 style=\"text-align: center; width: 100%;\" class=\"text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white font-cinzel\">ACCESS DENIED</h1>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if reason != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div style=\"text-align: center; width: 100%; margin-top: 0.75rem;\" class=\"flex justify-center items-center\"><span style=\"text-align: center; display: inline-block; margin-left: auto; margin-right: auto;\" class=\"inline-flex items-center bg-neutral-900/90 border border-neutral-800/80 px-4 py-2 rounded-full text-xs font-mono text-neutral-400 shadow-sm\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div style=\"text-align: center; width: 100%;\" class=\"flex justify-center items-center\"><p style=\"text-align: center; display: inline-block; margin-left: auto; margin-right: auto;\" class=\"text-sm sm:text-base text-neutral-400 font-mono\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(reason)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/login.templ`, Line: 47, Col: 15}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/login.templ`, Line: 38, Col: 15}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</span></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<p class=\"text-sm text-neutral-400 font-mono\">Something went wrong during authentication.</p>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</p></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><div style=\"margin-top: 1.5rem; margin-left: auto; margin-right: auto;\" class=\"w-full max-w-xs px-4\"><a href=\"/login\" class=\"flex items-center justify-center w-full gap-2 bg-neutral-900 hover:bg-neutral-800 rounded-xl px-6 py-3.5 text-sm sm:text-base font-medium text-white transition-all shadow-xl focus:outline-none border border-neutral-800/60\"><span>Try Again ↗</span></a></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div style=\"margin-top: 2rem; margin-left: auto; margin-right: auto;\" class=\"w-full max-w-sm px-4\"><a href=\"/login\" class=\"flex items-center justify-center w-full gap-2 bg-neutral-900 hover:bg-neutral-800 rounded-xl px-8 py-4.5 text-lg sm:text-xl font-medium text-white transition-all shadow-xl focus:outline-none\"><span>Try Again ↗</span></a></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

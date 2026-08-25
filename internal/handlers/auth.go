@@ -11,7 +11,29 @@ import (
 	"github.com/a-h/templ"
 )
 
+func HandleLogin(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("admin_token")
+	if err == nil && cookie.Value != "" {
+		email, err := services.ValidateJWT(cookie.Value)
+		if err == nil && email == os.Getenv("ADMIN_GMAIL") {
+			http.Redirect(w, r, "/dashboard", http.StatusFound)
+			return
+		}
+	}
+
+	templ.Handler(templates.Login()).ServeHTTP(w, r)
+}
+
 func HandleGoogleLogin(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("admin_token")
+	if err == nil && cookie.Value != "" {
+		email, err := services.ValidateJWT(cookie.Value)
+		if err == nil && email == os.Getenv("ADMIN_GMAIL") {
+			http.Redirect(w, r, "/dashboard", http.StatusFound)
+			return
+		}
+	}
+
 	url := services.GetGoogleAuthURL()
 	http.Redirect(w, r, url, http.StatusFound)
 }
