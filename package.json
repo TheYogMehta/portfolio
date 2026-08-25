@@ -1,0 +1,26 @@
+{
+  "name": "portfolio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build:templ": "templ generate",
+    "build:css": "npx @tailwindcss/cli -i ./static/css/input.css -o ./static/css/output.css --minify",
+    "build:server": "go build -o bin/server ./cmd/server",
+    "build": "npm run build:templ && npm run build:css && npm run build:server",
+    "dev:templ": "templ generate --watch",
+    "dev:css": "npx @tailwindcss/cli -i ./static/css/input.css -o ./static/css/output.css --watch 2>&1 | grep -v 'Done in'",
+    "dev:go": "air",
+    "dev": "concurrently \"npm:dev:*\"",
+    "upload": "node scripts/upload.js",
+    "upload:dry": "node scripts/upload.js --dry-run",
+    "upload:force": "node scripts/upload.js --force"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "concurrently": "^10.0.5",
+    "tailwindcss": "^4.3.3"
+  }
+}

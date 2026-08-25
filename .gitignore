@@ -1,4 +1,6 @@
 bin/*
 node_modules/
 tmp/*
-package.json
+.env
+package-lock.json
+scripts/

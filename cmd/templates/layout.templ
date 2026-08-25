@@ -13,9 +13,6 @@ templ Layout(title string) {
 		}
 
         <link rel="icon" type="image/png" href="/static/images/logo.png" />
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
 		<link rel="stylesheet" href="/static/css/output.css"/>
     </head>
     <body class="bg-[#181817] text-neutral-200 font-sans antialiased flex flex-col min-h-screen">
@@ -100,7 +97,7 @@ templ Header() {
 templ Footer() {
 	<footer>
 		<div class="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
-			// quick links
+			<!-- quick links -->
 			<ul class="mt-12 flex flex-wrap justify-center gap-6 md:gap-8 lg:gap-12">
 				@QuickLink("About", "/about")
 				@QuickLink("Projects", "/projects")
@@ -108,7 +105,7 @@ templ Footer() {
 				@QuickLink("Resume", "/static/resume.pdf")
    			</ul>
 
-			// Social Links
+			<!-- Social Links -->
 			<ul class="mt-12 flex justify-center gap-6 md:gap-8">
 				@SocialLink("https://github.com/theYogMehta/", "/static/icons/github.svg", "GitHub")
 				@SocialLink("https://www.linkedin.com/in/yog-mehta-143b80231/", "/static/icons/linkedin.svg", "LinkedIn")
