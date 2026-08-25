@@ -26,6 +26,10 @@ func GetGitHubStats(ctx context.Context, db *sql.DB) GitHubStats {
 	var currentStats GitHubStats
 	var updatedAt time.Time
 
+	if _, err := os.Stat("static/images/github_chart.svg"); os.IsNotExist(err) {
+		downloadLatestChartSVG()
+	}
+
 	err := db.QueryRowContext(ctx, `SELECT commits, last_updated, updated_at FROM github_stats WHERE id = 1`).Scan(&currentStats.Commits, &currentStats.LastUpdated, &updatedAt)
 
 	if err == nil && time.Since(updatedAt) < 1*time.Hour {
@@ -57,7 +61,7 @@ func GetGitHubStats(ctx context.Context, db *sql.DB) GitHubStats {
 }
 
 func fetchCommitCountFromAPI() (string, bool) {
-	client := http.Client{Timeout: 3 * time.Second}
+	client := http.Client{Timeout: 5 * time.Second}
 	resp, err := client.Get("https://github-contributions-api.jogruber.de/v4/theYogMehta?y=last")
 	if err != nil || resp.StatusCode != http.StatusOK {
 		return "", false
@@ -73,7 +77,7 @@ func fetchCommitCountFromAPI() (string, bool) {
 }
 
 func downloadLatestChartSVG() {
-	client := http.Client{Timeout: 3 * time.Second}
+	client := http.Client{Timeout: 5 * time.Second}
 	resp, err := client.Get("https://ghchart.rshah.org/39d353/theYogMehta")
 	if err == nil && resp.StatusCode == http.StatusOK {
 		file, err := os.Create("static/images/github_chart.svg")

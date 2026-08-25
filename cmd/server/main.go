@@ -13,7 +13,6 @@ import (
 	"portfolio/internal/middleware"
 	"portfolio/internal/services"
 
-	"github.com/a-h/templ"
 	"github.com/joho/godotenv"
 )
 
@@ -49,7 +48,7 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		stats := services.GetGitHubStats(ctx, DB)
-		templ.Handler(templates.Home(stats)).ServeHTTP(w, r)
+		templates.Home(stats).Render(ctx, w)
 	})
 
 	// Rate-limited Auth routes
@@ -68,8 +67,12 @@ func main() {
 		http.Redirect(w, r, "/", http.StatusFound)
 	})
 
-	// Protected Admin route (wrapped by middleware)
-	http.Handle("/dashboard", middleware.RequireAdminAuth(templ.Handler(templates.Dashboard())))
+	// Protected Admin route
+	http.Handle("/dashboard", middleware.RequireAdminAuth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		gaData := services.FetchGA4Metrics(ctx)
+		templates.Dashboard(gaData).Render(ctx, w)
+	})))
 
 	port := os.Getenv("PORT")
 	if port == "" {

@@ -1,11 +1,196 @@
 package templates
 
-templ Dashboard() {
+import (
+	"fmt"
+	"portfolio/internal/services"
+)
+
+templ Dashboard(gaData *services.AnalyticsData) {
 	@DashboardLayout("Dashboard") {
-		<div class="space-y-6">
-			<h1 class="text-lg sm:text-xl font-bold text-white font-cinzel tracking-tight">
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+		<div class="space-y-8 w-full">
+			if gaData != nil && gaData.LastError != "" {
+				<div class="p-4 rounded-xl bg-[#141413] text-xs font-mono text-neutral-400">
+					<p class="text-amber-400 font-medium mb-1">⚠️ Setup Notice:</p>
+					<p>{ gaData.LastError }</p>
+				</div>
+			}
+
+			<!-- Top Stat Counters Across Full Width -->
+			<div class="grid grid-cols-3 gap-6 pt-1 border-b border-neutral-800/40 pb-6 w-full">
+				<div class="space-y-1">
+					<p class="text-[11px] font-mono text-neutral-500 uppercase tracking-widest">Total Views</p>
+					if gaData != nil && gaData.LastError == "" {
+						<p class="text-2xl sm:text-3xl font-semibold text-white font-mono">{ fmt.Sprintf("%d", gaData.PageViews) }</p>
+					} else {
+						<p class="text-2xl sm:text-3xl font-semibold text-white font-mono">0</p>
+					}
+				</div>
+
+				<div class="space-y-1">
+					<p class="text-[11px] font-mono text-neutral-500 uppercase tracking-widest">Active Visitors</p>
+					if gaData != nil && gaData.LastError == "" {
+						<p class="text-2xl sm:text-3xl font-semibold text-white font-mono">{ fmt.Sprintf("%d", gaData.ActiveUsers) }</p>
+					} else {
+						<p class="text-2xl sm:text-3xl font-semibold text-white font-mono">0</p>
+					}
+				</div>
+
+				<div class="space-y-1">
+					<p class="text-[11px] font-mono text-neutral-500 uppercase tracking-widest">Avg Engagement</p>
+					if gaData != nil && gaData.LastError == "" && gaData.AvgDuration != "" {
+						<p class="text-2xl sm:text-3xl font-semibold text-white font-mono">{ gaData.AvgDuration }</p>
+					} else {
+						<p class="text-2xl sm:text-3xl font-semibold text-white font-mono">0s</p>
+					}
+				</div>
+			</div>
+
+			<!-- Main 2-Column Side-by-Side Flex Layout -->
+			<div class="flex flex-col lg:flex-row gap-8 items-start w-full">
 				
-			</h1>
+				<!-- Left Column (60% width): Traffic Trend Chart -->
+				<div class="w-full lg:w-7/12 space-y-6">
+					<div class="p-6 rounded-2xl bg-[#141413] space-y-4 w-full">
+						<p class="text-xs font-mono text-neutral-400 uppercase tracking-wider">Traffic Trend (7 Days)</p>
+						<div class="h-72 w-full relative">
+							if gaData != nil {
+								<canvas 
+									id="trafficChart" 
+									data-labels={ gaData.DailyLabels } 
+									data-values={ gaData.DailyValues }
+								></canvas>
+							} else {
+								<canvas 
+									id="trafficChart" 
+									data-labels='["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]' 
+									data-values='[0,0,0,0,0,0,0]'
+								></canvas>
+							}
+						</div>
+					</div>
+				</div>
+
+				<!-- Right Column (40% width): Per-Page Breakdown & Traffic Sources -->
+				<div class="w-full lg:w-5/12 space-y-6">
+					<!-- Per-Page Views Breakdown -->
+					<div class="p-6 rounded-2xl bg-[#141413] space-y-4 w-full">
+						<p class="text-xs font-mono text-neutral-400 uppercase tracking-wider">Per-Page Views</p>
+						if gaData != nil && len(gaData.TopPages) > 0 {
+							<div class="space-y-4 font-mono text-xs">
+								for _, page := range gaData.TopPages {
+									<div class="space-y-1.5">
+										<div class="flex items-center justify-between text-neutral-300">
+											<span class="font-medium text-white">{ page.Path }</span>
+											<span class="text-neutral-400">{ fmt.Sprintf("%d views (%d%%)", page.Views, page.Percentage) }</span>
+										</div>
+										<div class="w-full bg-neutral-900 rounded-full h-1.5 overflow-hidden">
+											<div class="bg-neutral-300 h-1.5 rounded-full" style={ fmt.Sprintf("width: %d%%;", page.Percentage) }></div>
+										</div>
+									</div>
+								}
+							</div>
+						} else {
+							<p class="text-xs font-mono text-neutral-500">No page data available yet</p>
+						}
+					</div>
+
+					<!-- Traffic Sources -->
+					<div class="p-6 rounded-2xl bg-[#141413] space-y-4 w-full">
+						<p class="text-xs font-mono text-neutral-400 uppercase tracking-wider">Traffic Sources</p>
+						if gaData != nil && len(gaData.Sources) > 0 {
+							<div class="space-y-3 font-mono text-xs">
+								for _, src := range gaData.Sources {
+									<div class="flex items-center justify-between py-2 border-b border-neutral-800/40">
+										<span class="text-white font-medium">{ src.Source }</span>
+										<span class="text-neutral-400">{ fmt.Sprintf("%d visitors", src.Users) }</span>
+									</div>
+								}
+							</div>
+						} else {
+							<div class="space-y-3 font-mono text-xs">
+								<div class="flex items-center justify-between py-2 border-b border-neutral-800/40">
+									<span class="text-white font-medium">Direct</span>
+									<span class="text-neutral-400">100%</span>
+								</div>
+							</div>
+						}
+					</div>
+				</div>
+
+			</div>
 		</div>
+
+		<!-- Minimalist Dark Chart.js Script -->
+		<script>
+			document.addEventListener("DOMContentLoaded", function() {
+				const ctx = document.getElementById('trafficChart');
+				if (!ctx) return;
+
+				let labels = [];
+				let values = [];
+				try {
+					labels = JSON.parse(ctx.dataset.labels || '[]');
+					values = JSON.parse(ctx.dataset.values || '[]');
+				} catch (e) {
+					console.error("Failed to parse chart data:", e);
+				}
+
+				const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 260);
+				gradient.addColorStop(0, 'rgba(255, 255, 255, 0.12)');
+				gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+
+				new Chart(ctx, {
+					type: 'line',
+					data: {
+						labels: labels,
+						datasets: [{
+							label: 'Page Views',
+							data: values,
+							borderColor: '#e5e5e5',
+							borderWidth: 2,
+							pointBackgroundColor: '#ffffff',
+							pointRadius: 3,
+							pointHoverRadius: 5,
+							fill: true,
+							backgroundColor: gradient,
+							tension: 0.35
+						}]
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: false,
+						plugins: {
+							legend: { display: false },
+							tooltip: {
+								backgroundColor: '#181817',
+								titleColor: '#ffffff',
+								bodyColor: '#a3a3a3',
+								borderColor: '#262626',
+								borderWidth: 1,
+								padding: 10,
+								displayColors: false,
+								callbacks: {
+									label: function(context) {
+										return context.parsed.y + ' views';
+									}
+								}
+							}
+						},
+						scales: {
+							x: {
+								grid: { display: false },
+								ticks: { color: '#737373', font: { family: 'monospace', size: 10 } }
+							},
+							y: {
+								grid: { color: '#262626', drawBorder: false },
+								ticks: { color: '#737373', font: { family: 'monospace', size: 10 }, precision: 0 }
+							}
+						}
+					}
+				});
+			});
+		</script>
 	}
 }

@@ -4,3 +4,4 @@ tmp/*
 .env
 package-lock.json
 scripts/
+credentials.json
