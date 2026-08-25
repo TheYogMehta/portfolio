@@ -8,6 +8,8 @@ import (
 
 	"portfolio/cmd/templates"
 	"portfolio/internal/db"
+	"portfolio/internal/handlers"
+	"portfolio/internal/middleware"
 	"portfolio/internal/services"
 
 	"github.com/a-h/templ"
@@ -39,12 +41,28 @@ func main() {
 	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	// Home route handler
+	// Public routes
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		stats := services.GetGitHubStats(ctx, DB)
 		templ.Handler(templates.Home(stats)).ServeHTTP(w, r)
 	})
+	http.Handle("/login", templ.Handler(templates.Login()))
+	http.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
+		http.SetCookie(w, &http.Cookie{
+			Name:     "admin_token",
+        	Value:    "",
+        	Path:     "/",
+        	MaxAge:   -1,
+        	HttpOnly: true,
+    	})
+		http.Redirect(w, r, "/", http.StatusFound)
+	})
+	http.HandleFunc("/auth/google/login", handlers.HandleGoogleLogin)
+	http.HandleFunc("/auth/google/callback", handlers.HandleGoogleCallback)
+	
+	// Protected Admin route (wrapped by middleware)
+	http.Handle("/dashboard", middleware.RequireAdminAuth(http.HandlerFunc(handlers.HandleDashboard)))
 
 	port := os.Getenv("PORT")
 	if port == "" {

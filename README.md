@@ -38,12 +38,7 @@ Copy the example environment file:
 cp .env.example .env
 ```
 
-Update your `.env` file with your local database connection settings:
-
-```env
-PORT=3000
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/portfolio?sslmode=disable
-```
+Update your `.env`
 
 ---
 

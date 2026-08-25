@@ -22,66 +22,65 @@ type ghResponse struct {
 	} `json:"total"`
 }
 
-// GetGitHubStats handles PostgreSQL caching with a 1-hour expiration
 func GetGitHubStats(ctx context.Context, db *sql.DB) GitHubStats {
-	if db == nil {
-		return fetchGithubData()
-	}
-
-	var stats GitHubStats
+	var currentStats GitHubStats
 	var updatedAt time.Time
 
-	// 1. Try reading from PostgreSQL
-	query := `SELECT commits, last_updated, updated_at FROM github_stats WHERE id = 1`
-	err := db.QueryRowContext(ctx, query).Scan(&stats.Commits, &stats.LastUpdated, &updatedAt)
+	err := db.QueryRowContext(ctx, `SELECT commits, last_updated, updated_at FROM github_stats WHERE id = 1`).Scan(&currentStats.Commits, &currentStats.LastUpdated, &updatedAt)
 
-	// 2. Check if cache exists and is less than 1 hour old
 	if err == nil && time.Since(updatedAt) < 1*time.Hour {
-		return stats // ⚡ Cache Hit: Returns from PostgreSQL in ~1ms
+		return currentStats
 	}
 
-	// 3. Cache Miss / Expired: Fetch fresh data from GitHub API & download new SVG
-	freshStats := fetchGithubData()
+	freshCount, ok := fetchCommitCountFromAPI()
+	if !ok {
+		return currentStats
+	}
 
-	// 4. Upsert (Insert or Update) into PostgreSQL
-	upsertQuery := `
-	INSERT INTO github_stats (id, commits, last_updated, updated_at)
-	VALUES (1, $1, $2, CURRENT_TIMESTAMP)
-	ON CONFLICT (id) 
-	DO UPDATE SET commits = $1, last_updated = $2, updated_at = CURRENT_TIMESTAMP;`
+	if currentStats.Commits != freshCount || err != nil {
+		downloadLatestChartSVG()
 
-	_, _ = db.ExecContext(ctx, upsertQuery, freshStats.Commits, freshStats.LastUpdated)
+		freshStats := GitHubStats{
+			Commits:     freshCount,
+			LastUpdated: time.Now().Format("Jan 02, 15:04"),
+		}
 
-	return freshStats
+		_, _ = db.ExecContext(ctx, `
+		INSERT INTO github_stats (id, commits, last_updated, updated_at)
+		VALUES (1, $1, $2, CURRENT_TIMESTAMP)
+		ON CONFLICT (id) 
+		DO UPDATE SET commits = $1, last_updated = $2, updated_at = CURRENT_TIMESTAMP;`, freshStats.Commits, freshStats.LastUpdated)
+		return freshStats
+	}
+
+	return currentStats
 }
 
-func fetchGithubData() GitHubStats {
+func fetchCommitCountFromAPI() (string, bool) {
 	client := http.Client{Timeout: 3 * time.Second}
-	commitsText := "2,837+ commits"
-
-	// Fetch Commit Count JSON
 	resp, err := client.Get("https://github-contributions-api.jogruber.de/v4/theYogMehta?y=last")
-	if err == nil && resp.StatusCode == http.StatusOK {
-		var data ghResponse
-		if err := json.NewDecoder(resp.Body).Decode(&data); err == nil && data.Total.LastYear > 0 {
-			commitsText = fmt.Sprintf("%d+ commits", data.Total.LastYear)
-		}
-		resp.Body.Close()
+	if err != nil || resp.StatusCode != http.StatusOK {
+		return "", false
+	}
+	defer resp.Body.Close()
+
+	var data ghResponse
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil || data.Total.LastYear == 0 {
+		return "", false
 	}
 
-	// Download & Save SVG Chart locally
-	chartResp, err := client.Get("https://ghchart.rshah.org/39d353/theYogMehta")
-	if err == nil && chartResp.StatusCode == http.StatusOK {
+	return fmt.Sprintf("%d+ commits", data.Total.LastYear), true
+}
+
+func downloadLatestChartSVG() {
+	client := http.Client{Timeout: 3 * time.Second}
+	resp, err := client.Get("https://ghchart.rshah.org/39d353/theYogMehta")
+	if err == nil && resp.StatusCode == http.StatusOK {
 		file, err := os.Create("static/images/github_chart.svg")
 		if err == nil {
-			io.Copy(file, chartResp.Body)
+			io.Copy(file, resp.Body)
 			file.Close()
 		}
-		chartResp.Body.Close()
-	}
-
-	return GitHubStats{
-		Commits:     commitsText,
-		LastUpdated: time.Now().Format("Jan 02, 15:04"),
+		resp.Body.Close()
 	}
 }

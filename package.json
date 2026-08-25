@@ -13,6 +13,7 @@
     "dev:go": "air",
     "dev": "concurrently \"npm:dev:*\"",
     "upload": "node scripts/upload.js",
+    "upload:watch": "node scripts/upload.js --watch",
     "upload:dry": "node scripts/upload.js --dry-run",
     "upload:force": "node scripts/upload.js --force"
   },

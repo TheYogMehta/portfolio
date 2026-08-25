@@ -1,0 +1,54 @@
+package templates
+
+templ Login() {
+	@Layout("Login") {
+		<div style="padding-top: 22vh; padding-bottom: 15vh; width: 100%; text-align: center;" class="flex flex-col items-center justify-center">
+
+			<div style="margin-bottom: 3rem; text-align: center; width: 100%;" class="flex flex-col items-center justify-center">
+				<h1 style="text-align: center; width: 100%;" class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white font-cinzel">
+					ADMIN ACCESS ONLY
+				</h1>
+			</div>
+
+			<div style="margin-left: auto; margin-right: auto;" class="w-full max-w-sm px-4">
+				<a 
+					href="/auth/google/login"
+					class="flex items-center justify-center w-full gap-3 bg-neutral-900 hover:bg-neutral-800 rounded-xl px-8 py-4.5 text-lg sm:text-xl font-medium text-white transition-all shadow-xl focus:outline-none"
+				>
+					<img src="/static/icons/google.svg" alt="Google" class="size-6" />
+					<span>Continue with Google</span>
+				</a>
+			</div>
+		</div>
+	}
+}
+
+templ ErrorLoginIn(reason string) {
+	@Layout("Error Logging In") {
+		<div style="padding-top: 22vh; padding-bottom: 15vh; width: 100%; text-align: center;" class="flex flex-col items-center justify-center space-y-8">
+
+			<div style="text-align: center; width: 100%;" class="flex flex-col items-center justify-center space-y-4">
+				<h1 style="text-align: center; width: 100%;" class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white font-cinzel">
+					ACCESS DENIED
+				</h1>
+
+				if reason != "" {
+					<div style="text-align: center; width: 100%;" class="flex justify-center items-center">
+						<p style="text-align: center; display: inline-block; margin-left: auto; margin-right: auto;" class="text-sm sm:text-base text-neutral-400 font-mono">
+							{ reason }
+						</p>
+					</div>
+				}
+			</div>
+
+			<div style="margin-top: 2rem; margin-left: auto; margin-right: auto;" class="w-full max-w-sm px-4">
+				<a 
+					href="/login"
+					class="flex items-center justify-center w-full gap-2 bg-neutral-900 hover:bg-neutral-800 rounded-xl px-8 py-4.5 text-lg sm:text-xl font-medium text-white transition-all shadow-xl focus:outline-none"
+				>
+					<span>Try Again ↗</span>
+				</a>
+			</div>
+		</div>
+	}
+}
