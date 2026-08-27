@@ -1,60 +1,23 @@
 @font-face {
-  font-family: 'Cinzel';
+  font-family: 'Newsreader';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/static/fonts/Cinzel-Regular.ttf') format('truetype');
+  src: url('/static/fonts/Newsreader-Regular.ttf') format('truetype');
 }
 @font-face {
-  font-family: 'Cinzel';
+  font-family: 'Newsreader';
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('/static/fonts/Cinzel-Bold.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Geist';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/static/fonts/Geist-Regular.ttf') format('truetype');
+  src: url('/static/fonts/Newsreader-Bold.ttf') format('truetype');
 }
 @font-face {
-  font-family: 'Geist';
-  font-style: normal;
-  font-weight: 500;
+  font-family: 'Newsreader';
+  font-style: italic;
+  font-weight: 400 700;
   font-display: swap;
-  src: url('/static/fonts/Geist-Medium.ttf') format('truetype');
-}
-@font-face {
-  font-family: 'Geist';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url('/static/fonts/Geist-SemiBold.ttf') format('truetype');
-}
-@font-face {
-  font-family: 'Geist';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/static/fonts/Geist-Bold.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Geist Mono';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/static/fonts/GeistMono-Regular.ttf') format('truetype');
-}
-@font-face {
-  font-family: 'Geist Mono';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('/static/fonts/GeistMono-Medium.ttf') format('truetype');
+  src: url('/static/fonts/Newsreader-Italic.ttf') format('truetype');
 }
 
 @import "tailwindcss";
@@ -62,7 +25,7 @@
 @theme {
   --font-sans: "Geist", sans-serif;
   --font-mono: "Geist Mono", monospace;
-  --font-cinzel: "Cinzel";
+  --font-newsreader: "Newsreader", serif;
 }
 
 /* Prevent image dragging and text selection on images globally */

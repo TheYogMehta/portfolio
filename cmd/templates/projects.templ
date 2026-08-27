@@ -1,0 +1,183 @@
+package templates
+
+import (
+	"fmt"
+	"strconv"
+	"strings"
+	"portfolio/internal/services"
+)
+
+templ PublicProjects(projects []services.ProjectRecord, currentPage int, totalPages int, err error) {
+	@Layout("Projects") {
+		<div style="padding-top: 3rem;" class="pb-24 sm:pb-32 max-w-full mx-auto px-4 sm:px-6 lg:px-5 space-y-10 sm:space-y-12">
+			<div style="margin-bottom: 3.5rem;" class="flex flex-col gap-2">
+				<h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white font-newsreader">
+					Projects
+				</h1>
+			</div>
+
+			if (err != nil || len(projects) == 0) {
+				<div style="min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100%;">
+					<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; max-width: 420px; margin: 0 auto;">
+						<img src="/static/icons/projects.svg" alt="Projects" draggable="false" style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; opacity: 0.5; display: block; margin: 0 auto;" />
+						<div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; width: 100%;">
+							<p style="font-family: var(--font-mono, monospace); font-size: 1.125rem; font-weight: 600; color: #e5e5e5; margin: 0; text-align: center;">
+								if err != nil {
+									<span>Error Loading Projects</span>
+								} else {
+									<span>No Projects Found</span>
+								}
+							</p>
+							<p style="font-family: var(--font-sans, sans-serif); font-size: 0.875rem; color: #a3a3a3; line-height: 1.5; margin: 0; text-align: center;">
+								if err != nil {
+									<span>{ err.Error() }</span>
+								} else {
+									<span>No public projects available right now. Please check back later.</span>
+								}
+							</p>
+						</div>
+					</div>
+				</div>
+			} else {
+				<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 1.5rem; width: 100%;">
+					for _, p := range projects {
+						<div style="position: relative; background-color: #141413; border: 1px solid #262626; border-radius: 1rem; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; transition: all 0.2s ease;" class="hover:border-neutral-700 group">
+							<a href={ templ.SafeURL(fmt.Sprintf("/project/view/%s", p.Slug)) } aria-label={ p.Title } style="position: absolute; inset: 0; z-index: 1; border-radius: 1rem;"></a>
+
+							<div style="display: flex; flex-direction: column; gap: 0.875rem; position: relative; z-index: 2; pointer-events: none;">
+								if p.ThumbnailURL != "" {
+									<div style="display: block; width: 100%; border-radius: 0.75rem; overflow: hidden; border: 1px solid #262626; aspect-ratio: 16/9;">
+										<img 
+											src={ p.ThumbnailURL } 
+											alt={ p.Title } 
+											style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;" 
+										/>
+									</div>
+								}
+
+								<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; width: 100%;">
+									<h3 style="font-family: var(--font-mono, monospace); font-size: 1rem; font-weight: 700; color: #ffffff; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{ p.Title }</h3>
+
+									<div style="display: flex; align-items: center; gap: 0.375rem; flex-shrink: 0; pointer-events: auto; position: relative; z-index: 10;">
+										if !p.IsGitHubPrivate && p.GitHubURL != "" {
+											<a href={ templ.SafeURL(p.GitHubURL) } target="_blank" rel="noreferrer" title="GitHub Repository" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem; padding: 0.25rem 0.625rem; border-radius: 0.5rem; background: #1a1a18; border: 1px solid #282826; text-decoration: none;">
+												<img src="/static/icons/github.svg" alt="GitHub" style="width: 12px; height: 12px; filter: invert(1); opacity: 0.8;" />
+												<span style="font-family: var(--font-mono, monospace); font-size: 0.6875rem; font-weight: 500; color: #d4d4d4;">GitHub</span>
+											</a>
+										}
+										if p.LiveURL != "" {
+											<a href={ templ.SafeURL(p.LiveURL) } target="_blank" rel="noreferrer" title="Live Demo" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem; padding: 0.25rem 0.625rem; border-radius: 0.5rem; background: #1a1a18; border: 1px solid #282826; text-decoration: none;">
+												<span style="font-family: var(--font-mono, monospace); font-size: 0.6875rem; font-weight: 500; color: #d4d4d4;">View</span>
+												<img src="/static/icons/arrow-up-right.svg" alt="Live Demo" style="width: 12px; height: 12px; filter: invert(1); opacity: 0.8;" />
+											</a>
+										}
+									</div>
+								</div>
+
+								if p.ShortDescription != "" {
+									<p style="font-family: var(--font-sans, sans-serif); font-size: 0.8125rem; color: #a3a3a3; line-height: 1.5; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">{ p.ShortDescription }</p>
+								}
+
+								if len(p.Languages) > 0 {
+									<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; padding-top: 0.25rem;">
+										for _, lang := range p.Languages {
+											<span style="background: #1a1a18; border: 1px solid #282826; border-radius: 0.5rem; padding: 0.25rem 0.625rem; font-family: var(--font-mono, monospace); font-size: 0.6875rem; color: #d4d4d4; display: inline-flex; align-items: center; gap: 0.375rem;">
+												<span>{ lang.Name }</span>
+												<span style="color: #737373; font-family: var(--font-sans, sans-serif);">{ fmt.Sprintf("%.1f%%", lang.Percentage) }</span>
+											</span>
+										}
+									</div>
+								}
+
+								if p.Tags != "" {
+									<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; font-family: var(--font-mono, monospace); font-size: 0.6875rem; color: #737373; padding-top: 0.125rem;">
+										<span style="color: #525252; font-weight: 600; text-transform: uppercase; font-size: 0.625rem; margin-right: 0.125rem;">TAGS:</span>
+										for _, tag := range strings.Split(p.Tags, ",") {
+											if strings.TrimSpace(tag) != "" {
+												<span style="background: #111110; border: 1px solid #222220; border-radius: 0.375rem; padding: 0.1875rem 0.5rem; color: #a3a3a3;">{ strings.TrimSpace(tag) }</span>
+											}
+										}
+									</div>
+								}
+							</div>
+
+							<div style="display: flex; align-items: center; gap: 1rem; border-top: 1px solid #262626; padding-top: 0.75rem; margin-top: 0.5rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; color: #a3a3a3; position: relative; z-index: 2; pointer-events: none;">
+								<div style="display: flex; align-items: center; gap: 0.375rem;" title="Stars">
+									<img src="/static/icons/star.svg" alt="Stars" style="width: 14px; height: 14px; min-width: 14px; max-width: 14px; opacity: 0.75; display: inline-block; margin-right: 0.25rem;" />
+									<span style="color: #e5e5e5; font-weight: 500;">{ strconv.Itoa(p.StarsCount) }</span>
+								</div>
+
+								<div style="display: flex; align-items: center; gap: 0.375rem;" title="Commits">
+									<img src="/static/icons/commit.svg" alt="Commits" style="width: 14px; height: 14px; min-width: 14px; max-width: 14px; opacity: 0.75; display: inline-block; margin-right: 0.25rem;" />
+									<span style="color: #e5e5e5; font-weight: 500;">{ strconv.Itoa(p.CommitsCount) }</span>
+								</div>
+
+								<div style="display: flex; align-items: center; gap: 0.375rem;" title="Views">
+									<img src="/static/icons/eye.svg" alt="Views" style="width: 14px; height: 14px; min-width: 14px; max-width: 14px; opacity: 0.75; display: inline-block; margin-right: 0.25rem;" />
+									<span style="color: #e5e5e5; font-weight: 500;">{ strconv.Itoa(p.ViewsCount) }</span>
+								</div>
+							</div>
+						</div>
+					}
+				</div>
+
+				if totalPages > 1 {
+					<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #262626; width: 100%; font-family: var(--font-mono, monospace);">
+						<div style="font-size: 0.75rem; color: #a3a3a3;">
+							Page <span style="color: #ffffff; font-weight: 600;">{ strconv.Itoa(currentPage) }</span> of <span style="color: #ffffff; font-weight: 600;">{ strconv.Itoa(totalPages) }</span>
+						</div>
+
+						<div style="display: flex; align-items: center; gap: 0.5rem;">
+							if currentPage > 1 {
+								<a 
+									href={ templ.SafeURL(fmt.Sprintf("/projects?page=%d", currentPage-1)) } 
+									style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.375rem 0.875rem; background-color: #141413; border: 1px solid #262626; border-radius: 0.5rem; color: #e5e5e5; font-size: 0.75rem; text-decoration: none; transition: all 0.2s;"
+								>
+									<img src="/static/icons/arrow-left.svg" alt="Prev" style="width: 12px; height: 12px; filter: invert(1); opacity: 0.8;" />
+									<span>Previous</span>
+								</a>
+							} else {
+								<span style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.375rem 0.875rem; background-color: #141413; border: 1px solid #1f1f1f; border-radius: 0.5rem; color: #525252; font-size: 0.75rem; cursor: not-allowed;">
+									<img src="/static/icons/arrow-left.svg" alt="Prev" style="width: 12px; height: 12px; filter: invert(1); opacity: 0.3;" />
+									<span>Previous</span>
+								</span>
+							}
+
+							<div style="display: flex; align-items: center; gap: 0.25rem;">
+								for pIdx := 1; pIdx <= totalPages; pIdx++ {
+									if pIdx == currentPage {
+										<span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 0.5rem; background-color: #ffffff; color: #000000; font-size: 0.75rem; font-weight: 700;">
+											{ strconv.Itoa(pIdx) }
+										</span>
+									} else {
+										<a 
+											href={ templ.SafeURL(fmt.Sprintf("/projects?page=%d", pIdx)) } 
+											style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 0.5rem; background-color: #141413; border: 1px solid #262626; color: #a3a3a3; font-size: 0.75rem; text-decoration: none; transition: all 0.2s;"
+										>
+											{ strconv.Itoa(pIdx) }
+										</a>
+									}
+								}
+							</div>
+
+							if currentPage < totalPages {
+								<a 
+									href={ templ.SafeURL(fmt.Sprintf("/projects?page=%d", currentPage+1)) } 
+									style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.375rem 0.875rem; background-color: #141413; border: 1px solid #262626; border-radius: 0.5rem; color: #e5e5e5; font-size: 0.75rem; text-decoration: none; transition: all 0.2s;"
+								>
+									<span>Next</span>
+									<img src="/static/icons/arrow-up-right.svg" alt="Next" style="width: 12px; height: 12px; filter: invert(1); opacity: 0.8;" />
+								</a>
+							} else {
+								<span style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.375rem 0.875rem; background-color: #141413; border: 1px solid #1f1f1f; border-radius: 0.5rem; color: #525252; font-size: 0.75rem; cursor: not-allowed;">
+									<span>Next</span>
+									<img src="/static/icons/arrow-up-right.svg" alt="Next" style="width: 12px; height: 12px; filter: invert(1); opacity: 0.3;" />
+								</span>
+							}
+						</div>
+					</div>
+				}
+			}
+		</div>
+	}
+}

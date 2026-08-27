@@ -1,0 +1,173 @@
+package templates
+
+import (
+	"fmt"
+	"strconv"
+	"strings"
+	"portfolio/internal/services"
+)
+
+templ ProjectDetail(p *services.ProjectRecord, err error) {
+	@Layout(func() string {
+		if p != nil {
+			return p.Title
+		}
+		return "Project"
+	}()) {
+		<div style="width: 100%; max-width: 1400px; margin: 0 auto; padding-top: 1.5rem; padding-bottom: 5rem; display: flex; flex-direction: column; gap: 2.5rem; clear: both;">
+			
+			<div style="display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; color: #a3a3a3;">
+				<a href="/projects" style="color: #a3a3a3; text-decoration: none; display: inline-flex; align-items: center; gap: 0.375rem;" class="hover:text-white">
+					<img src="/static/icons/arrow-left.svg" alt="Back" style="width: 12px; height: 12px; filter: invert(1); opacity: 0.7;" />
+					<span>Projects</span>
+				</a>
+				<span style="color: #525252;">/</span>
+				<span style="color: #ffffff; font-weight: 500;">{ func() string { if p != nil { return p.Title }; return "Detail" }() }</span>
+			</div>
+
+			if err != nil || p == nil {
+				<div style="min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100%;">
+					<h1 style="font-family: 'Newsreader', serif; font-size: 2rem; font-weight: 700; color: #ffffff; margin-bottom: 0.75rem;">Project Not Found</h1>
+					<p style="font-family: var(--font-sans, sans-serif); font-size: 0.875rem; color: #a3a3a3; max-width: 400px; margin-bottom: 1.5rem;">
+						The project you are looking for doesn't exist or is set to private.
+					</p>
+					<a href="/projects" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.25rem; background-color: #ffffff; color: #000000; border-radius: 0.75rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; font-weight: 500; text-decoration: none;">
+						<span>Back to Projects</span>
+					</a>
+				</div>
+			} else {
+				<div style="display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 2rem; width: 100%; border-bottom: 1px solid #262626; padding-bottom: 2rem;">
+					
+					<div style="flex: 1 1 450px; min-width: 300px; display: flex; flex-direction: column; gap: 1.5rem;">
+						<div style="display: flex; flex-direction: column; gap: 0.75rem;">
+							<h1 style="font-family: 'Newsreader', serif; font-size: 2.5rem; font-weight: 600; color: #ffffff; margin: 0; line-height: 1.2; letter-spacing: -0.02em;">
+								{ p.Title }
+							</h1>
+
+							if p.ShortDescription != "" {
+								<p style="font-family: var(--font-sans, sans-serif); font-size: 1rem; color: #d4d4d4; line-height: 1.6; margin: 0;">
+									{ p.ShortDescription }
+								</p>
+							}
+						</div>
+
+						<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem;">
+							if !p.IsGitHubPrivate && p.GitHubURL != "" {
+								<a 
+									href={ templ.SafeURL(p.GitHubURL) } 
+									target="_blank" 
+									rel="noreferrer" 
+									style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.25rem; background-color: #ffffff; color: #000000; border-radius: 0.75rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; font-weight: 600; text-decoration: none;"
+								>
+									<img src="/static/icons/github.svg" alt="GitHub" style="width: 16px; height: 16px; filter: invert(0);" />
+									<span>GitHub</span>
+									<img src="/static/icons/arrow-up-right.svg" alt="Arrow" style="width: 14px; height: 14px; filter: invert(0);" />
+								</a>
+							}
+							if p.LiveURL != "" {
+								<a 
+									href={ templ.SafeURL(p.LiveURL) } 
+									target="_blank" 
+									rel="noreferrer" 
+									style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.25rem; background-color: #ffffff; color: #000000; border-radius: 0.75rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; font-weight: 600; text-decoration: none;"
+								>
+									<span>View Live</span>
+									<img src="/static/icons/arrow-up-right.svg" alt="Arrow" style="width: 14px; height: 14px; filter: invert(0);" />
+								</a>
+							}
+						</div>
+
+						<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; color: #a3a3a3; padding-top: 0.25rem;">
+							<div style="display: flex; align-items: center; gap: 0.5rem;" title="Stars">
+								<img src="/static/icons/star.svg" alt="Stars" style="width: 14px; height: 14px; opacity: 0.8;" />
+								<span style="color: #ffffff; font-weight: 500;">{ strconv.Itoa(p.StarsCount) }</span>
+								<span style="color: #737373;">stars</span>
+							</div>
+							<div style="display: flex; align-items: center; gap: 0.5rem;" title="Commits">
+								<img src="/static/icons/commit.svg" alt="Commits" style="width: 14px; height: 14px; opacity: 0.8;" />
+								<span style="color: #ffffff; font-weight: 500;">{ strconv.Itoa(p.CommitsCount) }</span>
+								<span style="color: #737373;">commits</span>
+							</div>
+							<div style="display: flex; align-items: center; gap: 0.5rem;" title="Views">
+								<img src="/static/icons/eye.svg" alt="Views" style="width: 14px; height: 14px; opacity: 0.8;" />
+								<span style="color: #ffffff; font-weight: 500;">{ strconv.Itoa(p.ViewsCount) }</span>
+								<span style="color: #737373;">views</span>
+							</div>
+						</div>
+					</div>
+
+					if p.ThumbnailURL != "" {
+						<div style="flex: 1 1 400px; max-width: 550px; width: 100%;">
+							<div style="width: 100%; aspect-ratio: 16/9; border-radius: 1rem; overflow: hidden; border: 1px solid #262626; background-color: #141413;">
+								<img 
+									src={ p.ThumbnailURL } 
+									alt={ p.Title } 
+									style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;" 
+								/>
+							</div>
+						</div>
+					}
+
+				</div>
+
+				<div style="display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 2rem; width: 100%;">
+					
+					<div style="flex: 1 1 450px; min-width: 300px; display: flex; flex-direction: column; gap: 1.5rem;">
+						if p.LongDescription != "" {
+							<div style="display: flex; flex-direction: column; gap: 1rem;">
+								<h2 style="font-family: 'Newsreader', serif; font-size: 1.5rem; font-weight: 600; color: #ffffff; margin: 0;">
+									About the Project
+								</h2>
+								<div style="font-family: var(--font-sans, sans-serif); font-size: 0.9375rem; color: #d4d4d4; line-height: 1.7; white-space: pre-line;">
+									{ p.LongDescription }
+								</div>
+							</div>
+						}
+					</div>
+
+					<div style="flex: 1 1 320px; max-width: 450px; width: 100%; display: flex; flex-direction: column; gap: 1.5rem; border-left: 1px solid #333330; padding-left: 2rem;">
+						if len(p.Languages) > 0 {
+							<div style="display: flex; flex-direction: column; gap: 1rem;">
+								<h3 style="font-family: var(--font-mono, monospace); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #a3a3a3; margin: 0;">
+									Languages
+								</h3>
+								<div style="display: flex; flex-direction: column; gap: 0.75rem;">
+									for _, lang := range p.Languages {
+										<div style="display: flex; flex-direction: column; gap: 0.375rem;">
+											<div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono, monospace); font-size: 0.75rem;">
+												<span style="color: #e5e5e5; font-weight: 500;">{ lang.Name }</span>
+												<span style="color: #a3a3a3;">{ fmt.Sprintf("%.1f%%", lang.Percentage) }</span>
+											</div>
+											<div style="width: 100%; height: 6px; border-radius: 9999px; background-color: #222220; overflow: hidden; margin-top: 0.125rem;">
+												<div style={ fmt.Sprintf("width: %.1f%%; height: 6px; background-color: #ffffff; border-radius: 9999px; display: block;", lang.Percentage) }></div>
+											</div>
+										</div>
+									}
+								</div>
+							</div>
+						}
+
+						if p.Tags != "" {
+							<div style="display: flex; flex-direction: column; gap: 1rem;">
+								<h3 style="font-family: var(--font-mono, monospace); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #a3a3a3; margin: 0;">
+									Tags
+								</h3>
+								<div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+									for _, tag := range strings.Split(p.Tags, ",") {
+										if strings.TrimSpace(tag) != "" {
+											<span style="background-color: #1a1a18; border: 1px solid #282826; border-radius: 0.375rem; padding: 0.25rem 0.625rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; color: #d4d4d4;">
+												{ strings.TrimSpace(tag) }
+											</span>
+										}
+									}
+								</div>
+							</div>
+						}
+					</div>
+
+				</div>
+
+			}
+		</div>
+	}
+}

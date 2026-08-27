@@ -1,15 +1,20 @@
 package templates
 
-import "portfolio/internal/services"
+import (
+	"fmt"
+	"strconv"
+	"strings"
+	"portfolio/internal/services"
+)
 
-templ Home(stats services.GitHubStats) {
+templ Home(stats services.GitHubStats, featuredProjects []services.ProjectRecord) {
 	@Layout("") {
-		<section class="min-h-[75vh] lg:min-h-[80vh] flex flex-col justify-center py-12 sm:py-16 max-w-full mx-auto px-4 sm:px-6 lg:px-5">
+		<section style="padding-top: 7rem; padding-bottom: 5rem;" class="max-w-full mx-auto px-4 sm:px-6 lg:px-5">
 			<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
 				
 				<div class="lg:col-span-6 space-y-6">
 					<div class="space-y-2.5">
-						<h1 class="text-4xl sm:text-5xl font-bold tracking-tight text-white font-cinzel">
+						<h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white font-newsreader">
 							Hi, I’m Yog Mehta
 						</h1>
 
@@ -21,16 +26,28 @@ templ Home(stats services.GitHubStats) {
 
 					<p class="text-base sm:text-lg text-neutral-300 leading-relaxed font-sans">
 						Backend Developer working primarily with Go and Node.js. <br>
-						Graduated in Web Technologies (CGPA 9.85) and previously interned as a Backend Developer at Sort Solution. <br>
+						Graduated in Web Technologies from 
+						<a 
+							href="https://kccollege.edu.in/" 
+							target="_blank" 
+							rel="noreferrer" 
+							class="text-white underline underline-offset-4 decoration-neutral-700 hover:decoration-neutral-400 transition-colors font-medium"
+						>K.C. College, Colaba Campus</a> (CGPA 9.85) and previously interned as a Backend Developer at 
+						<a 
+							href="https://www.linkedin.com/company/sort-solution/" 
+							target="_blank" 
+							rel="noreferrer" 
+							class="text-white underline underline-offset-4 decoration-neutral-700 hover:decoration-neutral-400 transition-colors font-medium"
+						>Sort Solution</a>. <br>
 						Recent work includes 
 						<a 
-							href="https://github.com/theYogMehta" 
+							href="https://github.com/TheYogMehta/CryptNode" 
 							target="_blank" 
 							rel="noreferrer" 
 							class="text-white underline underline-offset-4 decoration-neutral-700 hover:decoration-neutral-400 transition-colors font-medium"
 						>CryptNode</a>, a zero-knowledge encrypted chat platform, and 
 						<a 
-							href="https://github.com/theYogMehta" 
+							href="https://github.com/TheYogMehta/StrawVerse" 
 							target="_blank" 
 							rel="noreferrer" 
 							class="text-white underline underline-offset-4 decoration-neutral-700 hover:decoration-neutral-400 transition-colors font-medium"
@@ -49,10 +66,10 @@ templ Home(stats services.GitHubStats) {
 							href="/static/resume.pdf" 
 							target="_blank" 
 							rel="noreferrer"
-							style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.375rem; background-color: #1e1e1e; color: #e5e5e5; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 0.75rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; font-weight: 500; text-decoration: none; transition: all 0.2s;"
+							style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.375rem; background-color: #ffffff; color: #000000; border-radius: 0.75rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; font-weight: 500; text-decoration: none; transition: all 0.2s;"
 						>
 							<span>Resume</span>
-							<img src="/static/icons/arrow-up-right.svg" alt="Arrow" draggable="false" style="width: 16px; height: 16px; min-width: 20x; max-width: 16px; filter: invert(1); opacity: 0.9; display: inline-block; vertical-align: middle;" />
+							<img src="/static/icons/arrow-up-right.svg" alt="Arrow" draggable="false" style="width: 16px; height: 16px; min-width: 16px; max-width: 16px; filter: invert(0); display: inline-block; vertical-align: middle;" />
 						</a>
 					</div>
 				</div>
@@ -93,5 +110,110 @@ templ Home(stats services.GitHubStats) {
 
 			</div>
 		</section>
+
+		if len(featuredProjects) > 0 {
+			<section class="pb-24 sm:pb-32 pt-6 max-w-full mx-auto px-4 sm:px-6 lg:px-5">
+				<div style="margin-bottom: 3rem;" class="flex flex-row items-center justify-between gap-4">
+					<div class="flex items-center gap-2 sm:gap-3">
+						<img src="/static/icons/star.svg" alt="Featured" draggable="false" style="opacity: 0.9;" class="size-5 sm:size-7 min-w-5 sm:min-w-7 shrink-0" />
+						<h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white font-newsreader">
+							Featured Projects
+						</h2>
+					</div>
+
+					<a 
+						href="/projects" 
+						style="display: inline-flex; align-items: center; gap: 0.375rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; color: #a3a3a3; text-decoration: none; font-weight: 500; transition: color 0.2s;"
+						class="hover:text-white shrink-0"
+					>
+						<span class="hidden sm:inline">View all projects</span>
+						<span class="sm:hidden">View all</span>
+						<img src="/static/icons/arrow-up-right.svg" alt="Arrow" style="width: 12px; height: 12px; min-width: 12px; filter: invert(1); opacity: 0.7;" />
+					</a>
+				</div>
+
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+					for _, p := range featuredProjects {
+						<div style="position: relative; background-color: #141413; border: 1px solid #262626; border-radius: 1rem; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; transition: all 0.2s ease;" class="hover:border-neutral-700 group">
+							<a href={ templ.SafeURL(fmt.Sprintf("/project/view/%s", p.Slug)) } aria-label={ p.Title } style="position: absolute; inset: 0; z-index: 1; border-radius: 1rem;"></a>
+
+							<div style="display: flex; flex-direction: column; gap: 0.875rem; position: relative; z-index: 2; pointer-events: none;">
+								if p.ThumbnailURL != "" {
+									<div style="display: block; width: 100%; border-radius: 0.75rem; overflow: hidden; border: 1px solid #262626; aspect-ratio: 16/9;">
+										<img 
+											src={ p.ThumbnailURL } 
+											alt={ p.Title } 
+											style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;" 
+										/>
+									</div>
+								}
+
+								<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; width: 100%;">
+									<h3 style="font-family: var(--font-mono, monospace); font-size: 1rem; font-weight: 700; color: #ffffff; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{ p.Title }</h3>
+
+									<div style="display: flex; align-items: center; gap: 0.375rem; flex-shrink: 0; pointer-events: auto; position: relative; z-index: 10;">
+										if !p.IsGitHubPrivate && p.GitHubURL != "" {
+											<a href={ templ.SafeURL(p.GitHubURL) } target="_blank" rel="noreferrer" title="GitHub Repository" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem; padding: 0.25rem 0.625rem; border-radius: 0.5rem; background: #1a1a18; border: 1px solid #282826; text-decoration: none;">
+												<img src="/static/icons/github.svg" alt="GitHub" style="width: 12px; height: 12px; filter: invert(1); opacity: 0.8;" />
+												<span style="font-family: var(--font-mono, monospace); font-size: 0.6875rem; font-weight: 500; color: #d4d4d4;">GitHub</span>
+											</a>
+										}
+										if p.LiveURL != "" {
+											<a href={ templ.SafeURL(p.LiveURL) } target="_blank" rel="noreferrer" title="Live Demo" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem; padding: 0.25rem 0.625rem; border-radius: 0.5rem; background: #1a1a18; border: 1px solid #282826; text-decoration: none;">
+												<span style="font-family: var(--font-mono, monospace); font-size: 0.6875rem; font-weight: 500; color: #d4d4d4;">View</span>
+												<img src="/static/icons/arrow-up-right.svg" alt="Live Demo" style="width: 12px; height: 12px; filter: invert(1); opacity: 0.8;" />
+											</a>
+										}
+									</div>
+								</div>
+
+								if p.ShortDescription != "" {
+									<p style="font-family: var(--font-sans, sans-serif); font-size: 0.8125rem; color: #a3a3a3; line-height: 1.5; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">{ p.ShortDescription }</p>
+								}
+
+								if len(p.Languages) > 0 {
+									<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; padding-top: 0.25rem;">
+										for _, lang := range p.Languages {
+											<span style="background: #1a1a18; border: 1px solid #282826; border-radius: 0.5rem; padding: 0.25rem 0.625rem; font-family: var(--font-mono, monospace); font-size: 0.6875rem; color: #d4d4d4; display: inline-flex; align-items: center; gap: 0.375rem;">
+												<span>{ lang.Name }</span>
+												<span style="color: #737373; font-family: var(--font-sans, sans-serif);">{ fmt.Sprintf("%.1f%%", lang.Percentage) }</span>
+											</span>
+										}
+									</div>
+								}
+
+								if p.Tags != "" {
+									<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; font-family: var(--font-mono, monospace); font-size: 0.6875rem; color: #737373; padding-top: 0.125rem;">
+										<span style="color: #525252; font-weight: 600; text-transform: uppercase; font-size: 0.625rem; margin-right: 0.125rem;">TAGS:</span>
+										for _, tag := range strings.Split(p.Tags, ",") {
+											if strings.TrimSpace(tag) != "" {
+												<span style="background: #111110; border: 1px solid #222220; border-radius: 0.375rem; padding: 0.1875rem 0.5rem; color: #a3a3a3;">{ strings.TrimSpace(tag) }</span>
+											}
+										}
+									</div>
+								}
+							</div>
+
+							<div style="display: flex; align-items: center; gap: 1rem; border-top: 1px solid #262626; padding-top: 0.75rem; margin-top: 0.5rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; color: #a3a3a3; position: relative; z-index: 2; pointer-events: none;">
+								<div style="display: flex; align-items: center; gap: 0.375rem;" title="Stars">
+									<img src="/static/icons/star.svg" alt="Stars" style="width: 14px; height: 14px; min-width: 14px; max-width: 14px; opacity: 0.75; display: inline-block; margin-right: 0.25rem;" />
+									<span style="color: #e5e5e5; font-weight: 500;">{ strconv.Itoa(p.StarsCount) }</span>
+								</div>
+
+								<div style="display: flex; align-items: center; gap: 0.375rem;" title="Commits">
+									<img src="/static/icons/commit.svg" alt="Commits" style="width: 14px; height: 14px; min-width: 14px; max-width: 14px; opacity: 0.75; display: inline-block; margin-right: 0.25rem;" />
+									<span style="color: #e5e5e5; font-weight: 500;">{ strconv.Itoa(p.CommitsCount) }</span>
+								</div>
+
+								<div style="display: flex; align-items: center; gap: 0.375rem;" title="Views">
+									<img src="/static/icons/eye.svg" alt="Views" style="width: 14px; height: 14px; min-width: 14px; max-width: 14px; opacity: 0.75; display: inline-block; margin-right: 0.25rem;" />
+									<span style="color: #e5e5e5; font-weight: 500;">{ strconv.Itoa(p.ViewsCount) }</span>
+								</div>
+							</div>
+						</div>
+					}
+				</div>
+			</section>
+		}
 	}
 }

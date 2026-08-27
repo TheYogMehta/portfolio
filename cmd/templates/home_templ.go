@@ -8,9 +8,14 @@ package templates
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "portfolio/internal/services"
+import (
+	"fmt"
+	"portfolio/internal/services"
+	"strconv"
+	"strings"
+)
 
-func Home(stats services.GitHubStats) templ.Component {
+func Home(stats services.GitHubStats, featuredProjects []services.ProjectRecord) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -43,14 +48,14 @@ func Home(stats services.GitHubStats) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"min-h-[75vh] lg:min-h-[80vh] flex flex-col justify-center py-12 sm:py-16 max-w-full mx-auto px-4 sm:px-6 lg:px-5\"><div class=\"grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center\"><div class=\"lg:col-span-6 space-y-6\"><div class=\"space-y-2.5\"><h1 class=\"text-4xl sm:text-5xl font-bold tracking-tight text-white font-cinzel\">Hi, I’m Yog Mehta</h1><p style=\"font-family: var(--font-sans, sans-serif); font-size: 0.8125rem; color: #a3a3a3; display: flex; align-items: center; gap: 0.375rem; font-weight: 500; letter-spacing: 0.01em;\"><span>Based in Mumbai</span> <img src=\"/static/icons/location.svg\" alt=\"Location\" draggable=\"false\" style=\"width: 13px; height: 13px; min-width: 13px; max-width: 13px; display: inline-block; vertical-align: middle; opacity: 0.7;\"></p></div><p class=\"text-base sm:text-lg text-neutral-300 leading-relaxed font-sans\">Backend Developer working primarily with Go and Node.js. <br>Graduated in Web Technologies (CGPA 9.85) and previously interned as a Backend Developer at Sort Solution. <br>Recent work includes  <a href=\"https://github.com/theYogMehta\" target=\"_blank\" rel=\"noreferrer\" class=\"text-white underline underline-offset-4 decoration-neutral-700 hover:decoration-neutral-400 transition-colors font-medium\">CryptNode</a>, a zero-knowledge encrypted chat platform, and  <a href=\"https://github.com/theYogMehta\" target=\"_blank\" rel=\"noreferrer\" class=\"text-white underline underline-offset-4 decoration-neutral-700 hover:decoration-neutral-400 transition-colors font-medium\">StrawVerse</a>, an open-source media manager that reached 60+ GitHub stars.</p><div style=\"display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; padding-top: 0.5rem;\"><a href=\"/projects\" style=\"display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.375rem; background-color: #ffffff; color: #000000; border-radius: 0.75rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; font-weight: 500; text-decoration: none; transition: all 0.2s;\"><span>View Projects</span> <span>↗</span></a> <a href=\"/static/resume.pdf\" target=\"_blank\" rel=\"noreferrer\" style=\"display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.375rem; background-color: #1e1e1e; color: #e5e5e5; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 0.75rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; font-weight: 500; text-decoration: none; transition: all 0.2s;\"><span>Resume</span> <span>↗</span></a></div></div><div class=\"lg:col-span-6\"><a href=\"https://github.com/theYogMehta\" target=\"_blank\" rel=\"noreferrer\" class=\"block border border-neutral-800/90 hover:border-neutral-700/80 rounded-2xl p-6 sm:p-7 space-y-5 shadow-2xl bg-[#141413] hover:bg-[#181817] transition-all duration-300 group cursor-pointer\"><div class=\"flex items-center justify-between border-b border-neutral-800 pb-4\"><div class=\"flex items-center gap-3\"><img src=\"/static/icons/github.svg\" alt=\"GitHub\" draggable=\"false\" class=\"size-7 sm:size-8 invert opacity-95 group-hover:scale-105 transition-transform\"> <span class=\"text-lg font-mono text-neutral-200 group-hover:text-white transition-colors font-medium\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section style=\"padding-top: 7rem; padding-bottom: 5rem;\" class=\"max-w-full mx-auto px-4 sm:px-6 lg:px-5\"><div class=\"grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center\"><div class=\"lg:col-span-6 space-y-6\"><div class=\"space-y-2.5\"><h1 class=\"text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white font-newsreader\">Hi, I’m Yog Mehta</h1><p style=\"font-family: var(--font-sans, sans-serif); font-size: 0.8125rem; color: #a3a3a3; display: flex; align-items: center; gap: 0.375rem; font-weight: 500; letter-spacing: 0.01em;\"><span>Based in Mumbai</span> <img src=\"/static/icons/location.svg\" alt=\"Location\" draggable=\"false\" style=\"width: 13px; height: 13px; min-width: 13px; max-width: 13px; display: inline-block; vertical-align: middle; opacity: 0.7;\"></p></div><p class=\"text-base sm:text-lg text-neutral-300 leading-relaxed font-sans\">Backend Developer working primarily with Go and Node.js. <br>Graduated in Web Technologies from  <a href=\"https://kccollege.edu.in/\" target=\"_blank\" rel=\"noreferrer\" class=\"text-white underline underline-offset-4 decoration-neutral-700 hover:decoration-neutral-400 transition-colors font-medium\">K.C. College, Colaba Campus</a> (CGPA 9.85) and previously interned as a Backend Developer at  <a href=\"https://www.linkedin.com/company/sort-solution/\" target=\"_blank\" rel=\"noreferrer\" class=\"text-white underline underline-offset-4 decoration-neutral-700 hover:decoration-neutral-400 transition-colors font-medium\">Sort Solution</a>. <br>Recent work includes  <a href=\"https://github.com/TheYogMehta/CryptNode\" target=\"_blank\" rel=\"noreferrer\" class=\"text-white underline underline-offset-4 decoration-neutral-700 hover:decoration-neutral-400 transition-colors font-medium\">CryptNode</a>, a zero-knowledge encrypted chat platform, and  <a href=\"https://github.com/TheYogMehta/StrawVerse\" target=\"_blank\" rel=\"noreferrer\" class=\"text-white underline underline-offset-4 decoration-neutral-700 hover:decoration-neutral-400 transition-colors font-medium\">StrawVerse</a>, an open-source media manager that reached 60+ GitHub stars.</p><div style=\"display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; padding-top: 0.5rem;\"><a href=\"/projects\" style=\"display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.375rem; background-color: #ffffff; color: #000000; border-radius: 0.75rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; font-weight: 500; text-decoration: none; transition: all 0.2s;\"><span>View Projects</span> <img src=\"/static/icons/arrow-up-right.svg\" alt=\"Arrow\" draggable=\"false\" style=\"width: 16px; height: 16px; min-width: 16px; max-width: 16px; filter: invert(0); display: inline-block; vertical-align: middle;\"></a> <a href=\"/static/resume.pdf\" target=\"_blank\" rel=\"noreferrer\" style=\"display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.375rem; background-color: #ffffff; color: #000000; border-radius: 0.75rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; font-weight: 500; text-decoration: none; transition: all 0.2s;\"><span>Resume</span> <img src=\"/static/icons/arrow-up-right.svg\" alt=\"Arrow\" draggable=\"false\" style=\"width: 16px; height: 16px; min-width: 16px; max-width: 16px; filter: invert(0); display: inline-block; vertical-align: middle;\"></a></div></div><div class=\"lg:col-span-6\"><a href=\"https://github.com/TheYogMehta\" target=\"_blank\" rel=\"noreferrer\" class=\"block border border-neutral-800/90 hover:border-neutral-700/80 rounded-2xl p-6 sm:p-7 space-y-5 shadow-2xl bg-[#141413] hover:bg-[#181817] transition-all duration-300 group cursor-pointer\"><div class=\"flex items-center justify-between border-b border-neutral-800 pb-4\"><div class=\"flex items-center gap-3\"><img src=\"/static/icons/github.svg\" alt=\"GitHub\" draggable=\"false\" class=\"size-7 sm:size-8 invert opacity-95 group-hover:scale-105 transition-transform\"> <span class=\"text-lg font-mono text-neutral-200 group-hover:text-white transition-colors font-medium\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs("@theYogMehta")
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs("@TheYogMehta")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 71, Col: 25}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 88, Col: 25}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -63,7 +68,7 @@ func Home(stats services.GitHubStats) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(stats.Commits)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 88, Col: 28}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 105, Col: 28}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -76,7 +81,7 @@ func Home(stats services.GitHubStats) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(stats.LastUpdated)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 89, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 106, Col: 65}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -85,6 +90,274 @@ func Home(stats services.GitHubStats) templ.Component {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</span></div></a></div></div></section>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
+			}
+			if len(featuredProjects) > 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<section class=\"pb-24 sm:pb-32 pt-6 max-w-full mx-auto px-4 sm:px-6 lg:px-5\"><div style=\"margin-bottom: 3rem;\" class=\"flex flex-row items-center justify-between gap-4\"><div class=\"flex items-center gap-2 sm:gap-3\"><img src=\"/static/icons/star.svg\" alt=\"Featured\" draggable=\"false\" style=\"opacity: 0.9;\" class=\"size-5 sm:size-7 min-w-5 sm:min-w-7 shrink-0\"><h2 class=\"text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white font-newsreader\">Featured Projects</h2></div><a href=\"/projects\" style=\"display: inline-flex; align-items: center; gap: 0.375rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; color: #a3a3a3; text-decoration: none; font-weight: 500; transition: color 0.2s;\" class=\"hover:text-white shrink-0\"><span class=\"hidden sm:inline\">View all projects</span> <span class=\"sm:hidden\">View all</span> <img src=\"/static/icons/arrow-up-right.svg\" alt=\"Arrow\" style=\"width: 12px; height: 12px; min-width: 12px; filter: invert(1); opacity: 0.7;\"></a></div><div class=\"grid grid-cols-1 md:grid-cols-2 gap-6\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				for _, p := range featuredProjects {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div style=\"position: relative; background-color: #141413; border: 1px solid #262626; border-radius: 1rem; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; transition: all 0.2s ease;\" class=\"hover:border-neutral-700 group\"><a href=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var6 templ.SafeURL
+					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/project/view/%s", p.Slug)))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 138, Col: 71}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" aria-label=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var7 string
+					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Title)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 138, Col: 94}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" style=\"position: absolute; inset: 0; z-index: 1; border-radius: 1rem;\"></a><div style=\"display: flex; flex-direction: column; gap: 0.875rem; position: relative; z-index: 2; pointer-events: none;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if p.ThumbnailURL != "" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div style=\"display: block; width: 100%; border-radius: 0.75rem; overflow: hidden; border: 1px solid #262626; aspect-ratio: 16/9;\"><img src=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var8 string
+						templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.ThumbnailURL)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 144, Col: 31}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" alt=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var9 string
+						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Title)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 145, Col: 24}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" style=\"width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;\"></div>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div style=\"display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; width: 100%;\"><h3 style=\"font-family: var(--font-mono, monospace); font-size: 1rem; font-weight: 700; color: #ffffff; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var10 string
+					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(p.Title)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 152, Col: 198}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</h3><div style=\"display: flex; align-items: center; gap: 0.375rem; flex-shrink: 0; pointer-events: auto; position: relative; z-index: 10;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if !p.IsGitHubPrivate && p.GitHubURL != "" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<a href=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var11 templ.SafeURL
+						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(p.GitHubURL))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 156, Col: 47}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" target=\"_blank\" rel=\"noreferrer\" title=\"GitHub Repository\" style=\"display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem; padding: 0.25rem 0.625rem; border-radius: 0.5rem; background: #1a1a18; border: 1px solid #282826; text-decoration: none;\"><img src=\"/static/icons/github.svg\" alt=\"GitHub\" style=\"width: 12px; height: 12px; filter: invert(1); opacity: 0.8;\"> <span style=\"font-family: var(--font-mono, monospace); font-size: 0.6875rem; font-weight: 500; color: #d4d4d4;\">GitHub</span></a> ")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					if p.LiveURL != "" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<a href=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var12 templ.SafeURL
+						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(p.LiveURL))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 162, Col: 45}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" target=\"_blank\" rel=\"noreferrer\" title=\"Live Demo\" style=\"display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem; padding: 0.25rem 0.625rem; border-radius: 0.5rem; background: #1a1a18; border: 1px solid #282826; text-decoration: none;\"><span style=\"font-family: var(--font-mono, monospace); font-size: 0.6875rem; font-weight: 500; color: #d4d4d4;\">View</span> <img src=\"/static/icons/arrow-up-right.svg\" alt=\"Live Demo\" style=\"width: 12px; height: 12px; filter: invert(1); opacity: 0.8;\"></a>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div></div>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if p.ShortDescription != "" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<p style=\"font-family: var(--font-sans, sans-serif); font-size: 0.8125rem; color: #a3a3a3; line-height: 1.5; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var13 string
+						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(p.ShortDescription)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 171, Col: 243}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</p>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					if len(p.Languages) > 0 {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div style=\"display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; padding-top: 0.25rem;\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						for _, lang := range p.Languages {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span style=\"background: #1a1a18; border: 1px solid #282826; border-radius: 0.5rem; padding: 0.25rem 0.625rem; font-family: var(--font-mono, monospace); font-size: 0.6875rem; color: #d4d4d4; display: inline-flex; align-items: center; gap: 0.375rem;\"><span>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							var templ_7745c5c3_Var14 string
+							templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(lang.Name)
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 178, Col: 29}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span> <span style=\"color: #737373; font-family: var(--font-sans, sans-serif);\">")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							var templ_7745c5c3_Var15 string
+							templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", lang.Percentage))
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 179, Col: 125}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</span></span>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					if p.Tags != "" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div style=\"display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; font-family: var(--font-mono, monospace); font-size: 0.6875rem; color: #737373; padding-top: 0.125rem;\"><span style=\"color: #525252; font-weight: 600; text-transform: uppercase; font-size: 0.625rem; margin-right: 0.125rem;\">TAGS:</span> ")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						for _, tag := range strings.Split(p.Tags, ",") {
+							if strings.TrimSpace(tag) != "" {
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span style=\"background: #111110; border: 1px solid #222220; border-radius: 0.375rem; padding: 0.1875rem 0.5rem; color: #a3a3a3;\">")
+								if templ_7745c5c3_Err != nil {
+									return templ_7745c5c3_Err
+								}
+								var templ_7745c5c3_Var16 string
+								templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(strings.TrimSpace(tag))
+								if templ_7745c5c3_Err != nil {
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 190, Col: 166}
+								}
+								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+								if templ_7745c5c3_Err != nil {
+									return templ_7745c5c3_Err
+								}
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</span>")
+								if templ_7745c5c3_Err != nil {
+									return templ_7745c5c3_Err
+								}
+							}
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div><div style=\"display: flex; align-items: center; gap: 1rem; border-top: 1px solid #262626; padding-top: 0.75rem; margin-top: 0.5rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; color: #a3a3a3; position: relative; z-index: 2; pointer-events: none;\"><div style=\"display: flex; align-items: center; gap: 0.375rem;\" title=\"Stars\"><img src=\"/static/icons/star.svg\" alt=\"Stars\" style=\"width: 14px; height: 14px; min-width: 14px; max-width: 14px; opacity: 0.75; display: inline-block; margin-right: 0.25rem;\"> <span style=\"color: #e5e5e5; font-weight: 500;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var17 string
+					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(p.StarsCount))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 200, Col: 85}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</span></div><div style=\"display: flex; align-items: center; gap: 0.375rem;\" title=\"Commits\"><img src=\"/static/icons/commit.svg\" alt=\"Commits\" style=\"width: 14px; height: 14px; min-width: 14px; max-width: 14px; opacity: 0.75; display: inline-block; margin-right: 0.25rem;\"> <span style=\"color: #e5e5e5; font-weight: 500;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var18 string
+					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(p.CommitsCount))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 205, Col: 87}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</span></div><div style=\"display: flex; align-items: center; gap: 0.375rem;\" title=\"Views\"><img src=\"/static/icons/eye.svg\" alt=\"Views\" style=\"width: 14px; height: 14px; min-width: 14px; max-width: 14px; opacity: 0.75; display: inline-block; margin-right: 0.25rem;\"> <span style=\"color: #e5e5e5; font-weight: 500;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var19 string
+					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(p.ViewsCount))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/templates/home.templ`, Line: 210, Col: 85}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</span></div></div></div>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div></section>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
 			return nil
 		})

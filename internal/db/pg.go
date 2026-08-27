@@ -8,19 +8,22 @@ import (
 	"github.com/pressly/goose/v3"
 )
 
+var DB *sql.DB
+
 func InitDB(connStr string) (*sql.DB, error) {
-	db, err := sql.Open("pgx", connStr)
+	dbConn, err := sql.Open("pgx", connStr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open postgres connection: %w", err)
 	}
 
-	if err := db.Ping(); err != nil {
+	if err := dbConn.Ping(); err != nil {
 		return nil, fmt.Errorf("failed to ping postgres: %w", err)
 	}
 
-	if err := goose.Up(db, "internal/db/migrations"); err != nil {
+	if err := goose.Up(dbConn, "internal/db/migrations"); err != nil {
 		return nil, fmt.Errorf("failed to run migrations: %w", err)
 	}
 
-	return db, nil
+	DB = dbConn
+	return dbConn, nil
 }

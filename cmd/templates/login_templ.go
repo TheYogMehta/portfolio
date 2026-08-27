@@ -41,7 +41,7 @@ func Login() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"padding-top: 22vh; padding-bottom: 15vh; width: 100%; text-align: center;\" class=\"flex flex-col items-center justify-center\"><div style=\"margin-bottom: 3rem; text-align: center; width: 100%;\" class=\"flex flex-col items-center justify-center\"><h1 style=\"text-align: center; width: 100%;\" class=\"text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white font-cinzel\">ADMIN ACCESS ONLY</h1></div><div style=\"margin-left: auto; margin-right: auto;\" class=\"w-full max-w-sm px-4\"><a href=\"/auth/google/login\" class=\"flex items-center justify-center w-full gap-3 bg-neutral-900 hover:bg-neutral-800 rounded-xl px-8 py-4.5 text-lg sm:text-xl font-medium text-white transition-all shadow-xl focus:outline-none\"><img src=\"/static/icons/google.svg\" alt=\"Google\" class=\"size-6\"> <span>Continue with Google</span></a></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"padding-top: 22vh; padding-bottom: 15vh; width: 100%; text-align: center;\" class=\"flex flex-col items-center justify-center\"><div style=\"margin-bottom: 3rem; text-align: center; width: 100%;\" class=\"flex flex-col items-center justify-center\"><h1 style=\"text-align: center; width: 100%;\" class=\"text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white font-newsreader\">ADMIN ACCESS ONLY</h1></div><div style=\"margin-left: auto; margin-right: auto;\" class=\"w-full max-w-sm px-4\"><a href=\"/auth/google/login\" class=\"flex items-center justify-center w-full gap-3 bg-neutral-900 hover:bg-neutral-800 rounded-xl px-8 py-4.5 text-lg sm:text-xl font-medium text-white transition-all shadow-xl focus:outline-none\"><img src=\"/static/icons/google.svg\" alt=\"Google\" class=\"size-6\"> <span>Continue with Google</span></a></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -88,7 +88,7 @@ func ErrorLoginIn(reason string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div style=\"padding-top: 22vh; padding-bottom: 15vh; width: 100%; text-align: center;\" class=\"flex flex-col items-center justify-center space-y-8\"><div style=\"text-align: center; width: 100%;\" class=\"flex flex-col items-center justify-center space-y-4\"><h1 style=\"text-align: center; width: 100%;\" class=\"text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white font-cinzel\">ACCESS DENIED</h1>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div style=\"padding-top: 22vh; padding-bottom: 15vh; width: 100%; text-align: center;\" class=\"flex flex-col items-center justify-center space-y-8\"><div style=\"text-align: center; width: 100%;\" class=\"flex flex-col items-center justify-center space-y-4\"><h1 style=\"text-align: center; width: 100%;\" class=\"text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white font-newsreader\">ACCESS DENIED</h1>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -1,0 +1,24 @@
+package templates
+
+templ NotFound() {
+	@Layout("404 - Page Not Found") {
+		<section class="min-h-[70vh] flex flex-col items-center justify-center text-center px-4 py-16">
+			<div class="space-y-6 max-w-md">
+				<p class="text-6xl sm:text-7xl font-bold font-mono text-neutral-600">404</p>
+				<h1 class="text-2xl sm:text-3xl font-bold text-white font-newsreader">Page Not Found</h1>
+				<p class="text-sm text-neutral-400 font-sans leading-relaxed">
+					The page you are looking for doesn’t exist or has been moved.
+				</p>
+				<div class="pt-4">
+					<a 
+						href="/" 
+						style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.375rem; background-color: #ffffff; color: #000000; border-radius: 0.75rem; font-family: var(--font-mono, monospace); font-size: 0.75rem; font-weight: 500; text-decoration: none;"
+					>
+						<img src="/static/icons/arrow-left.svg" alt="Back" draggable="false" style="width: 16px; height: 16px; min-width: 16px; max-width: 16px; filter: invert(0); display: inline-block; vertical-align: middle;" />
+						<span>Back to Home</span>
+					</a>
+				</div>
+			</div>
+		</section>
+	}
+}
