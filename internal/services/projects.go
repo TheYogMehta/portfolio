@@ -224,14 +224,6 @@ func GetProject(ctx context.Context, page int) ([]ProjectRecord, int, error) {
 	return projects, totalPages, nil
 }
 
-func IncrementProjectViews(ctx context.Context, slug string) error {
-	if db.DB == nil {
-		return fmt.Errorf("[ERROR] Database connection unavailable")
-	}
-	_, err := db.DB.ExecContext(ctx, "UPDATE projects SET views_count = views_count + 1 WHERE slug = $1 AND is_public = true", slug)
-	return err
-}
-
 func GetProjectBySlug(ctx context.Context, slug string) (*ProjectRecord, error) {
 	if db.DB == nil {
 		return nil, errors.New("[ERROR] Database connection unavailable")

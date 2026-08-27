@@ -5,3 +5,5 @@ tmp/*
 package-lock.json
 scripts/
 credentials.json
+*_templ.go
+static/css/output.css

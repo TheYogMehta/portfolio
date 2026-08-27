@@ -1,306 +1,239 @@
 package services
 
 import (
-	"bytes"
 	"context"
+	"crypto/rsa"
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
-	"sort"
 	"strings"
-	"sync"
 	"time"
 
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
+	"portfolio/internal/db"
+
+	"github.com/golang-jwt/jwt/v4"
 )
 
-type PageStat struct {
+type TopPage struct {
 	Path       string `json:"path"`
 	Views      int    `json:"views"`
 	Percentage int    `json:"percentage"`
 }
 
-type TrafficSource struct {
+type Source struct {
+	Name   string `json:"name"`
 	Source string `json:"source"`
 	Users  int    `json:"users"`
 }
 
-type DeviceStat struct {
-	Device string `json:"device"`
-	Users  int    `json:"users"`
-}
-
-type DailyStat struct {
-	Date  string `json:"date"`
-	Views int    `json:"views"`
-}
-
 type AnalyticsData struct {
-	ActiveUsers int             `json:"activeUsers"`
-	PageViews   int             `json:"pageViews"`
-	AvgDuration string          `json:"avgDuration"`
-	TopPages    []PageStat      `json:"topPages"`
-	Sources     []TrafficSource `json:"sources"`
-	Devices     []DeviceStat    `json:"devices"`
-	DailyViews  []DailyStat     `json:"dailyViews"`
-	DailyLabels string          `json:"dailyLabels"`
-	DailyValues string          `json:"dailyValues"`
-	LastError   string          `json:"lastError,omitempty"`
+	PageViews    int        `json:"page_views"`
+	ActiveUsers  int        `json:"active_users"`
+	AvgDuration  string     `json:"avg_duration"`
+	DailyLabels  []string   `json:"daily_labels"`
+	DailyViews   []int      `json:"daily_views"`
+	DailyValues  []int      `json:"daily_values"`
+	TopPages     []TopPage  `json:"top_pages"`
+	Sources      []Source   `json:"sources"`
+	LastError    string     `json:"last_error"`
+	LastSyncedAt string     `json:"last_synced_at"`
 }
 
-var (
-	gaCacheData *AnalyticsData
-	gaCacheTime time.Time
-	gaCacheMu   sync.Mutex
-)
+type serviceAccountFile struct {
+	ClientEmail string `json:"client_email"`
+	PrivateKey  string `json:"private_key"`
+	TokenURI    string `json:"token_uri"`
+}
 
 func FetchGA4Metrics(ctx context.Context) *AnalyticsData {
-	gaCacheMu.Lock()
-	if gaCacheData != nil && time.Since(gaCacheTime) < 5*time.Minute {
-		defer gaCacheMu.Unlock()
-		return gaCacheData
+	return &AnalyticsData{
+		PageViews:    0,
+		ActiveUsers:  0,
+		AvgDuration:  "0s",
+		DailyLabels:  []string{},
+		DailyViews:   []int{},
+		DailyValues:  []int{},
+		TopPages:     []TopPage{},
+		Sources:      []Source{},
+		LastError:    "",
+		LastSyncedAt: time.Now().Format("Jan 02, 15:04"),
 	}
-	gaCacheMu.Unlock()
+}
 
-	propertyID := strings.TrimSpace(os.Getenv("GA_PROPERTY_ID"))
+func StartGA4SyncWorker(ctx context.Context) {
+	go func() {
+		ticker := time.NewTicker(6 * time.Hour)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				_ = SyncGA4ProjectViews(ctx)
+			}
+		}
+	}()
+}
+
+type ga4ReportResponse struct {
+	Rows []struct {
+		DimensionValues []struct {
+			Value string `json:"value"`
+		} `json:"dimensionValues"`
+		MetricValues []struct {
+			Value string `json:"value"`
+		} `json:"metricValues"`
+	} `json:"rows"`
+}
+
+func getGA4AccessToken(credentialsPath string) (string, error) {
+	data, err := os.ReadFile(credentialsPath)
+	if err != nil {
+		return "", err
+	}
+
+	var sa serviceAccountFile
+	if err := json.Unmarshal(data, &sa); err != nil {
+		return "", err
+	}
+
+	block, _ := pem.Decode([]byte(sa.PrivateKey))
+	if block == nil {
+		return "", fmt.Errorf("failed to parse PEM block containing private key")
+	}
+
+	parsedKey, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+	if err != nil {
+		return "", err
+	}
+
+	rsaKey, ok := parsedKey.(*rsa.PrivateKey)
+	if !ok {
+		return "", fmt.Errorf("private key is not RSA")
+	}
+
+	now := time.Now()
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
+		"iss":   sa.ClientEmail,
+		"scope": "https://www.googleapis.com/auth/analytics.readonly",
+		"aud":   sa.TokenURI,
+		"exp":   now.Add(1 * time.Hour).Unix(),
+		"iat":   now.Unix(),
+	})
+
+	signedJWT, err := token.SignedString(rsaKey)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := http.PostForm(sa.TokenURI, map[string][]string{
+		"grant_type": {"urn:ietf:params:oauth:grant-type:jwt-bearer"},
+		"assertion":  {signedJWT},
+	})
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	bodyBytes, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("GA4 token exchange failed: %s", string(bodyBytes))
+	}
+
+	var tokenResp struct {
+		AccessToken string `json:"access_token"`
+	}
+	if err := json.Unmarshal(bodyBytes, &tokenResp); err != nil {
+		return "", err
+	}
+
+	return tokenResp.AccessToken, nil
+}
+
+func SyncGA4ProjectViews(ctx context.Context) error {
+	propertyID := os.Getenv("GA_PROPERTY_ID")
 	if propertyID == "" {
-		return &AnalyticsData{
-			LastError: "GA_PROPERTY_ID is missing in .env file",
-		}
+		propertyID = "551451947"
 	}
 
-	propertyID = strings.TrimPrefix(propertyID, "properties/")
-
-	jsonKey := []byte(os.Getenv("GOOGLE_CREDENTIALS_JSON"))
-	if len(jsonKey) == 0 {
-		fileKey, err := os.ReadFile("credentials.json")
-		if err == nil {
-			jsonKey = fileKey
-		}
+	if db.DB == nil {
+		return fmt.Errorf("database unavailable")
 	}
 
-	if len(jsonKey) == 0 {
-		return &AnalyticsData{
-			LastError: "credentials.json file is missing in project root directory",
-		}
+	credentialsPath := os.Getenv("GA_CREDENTIALS_FILE")
+	if credentialsPath == "" {
+		credentialsPath = "credentials.json"
 	}
 
-	creds, err := google.CredentialsFromJSON(ctx, jsonKey, "https://www.googleapis.com/auth/analytics.readonly")
+	accessToken, err := getGA4AccessToken(credentialsPath)
 	if err != nil {
-		return &AnalyticsData{
-			LastError: fmt.Sprintf("Failed to authenticate Google Service Account: %v", err),
-		}
+		log.Printf("[GA4 Sync Worker] Could not authenticate via %s: %v", credentialsPath, err)
+		return err
 	}
 
-	client := oauth2.NewClient(ctx, creds.TokenSource)
 	url := fmt.Sprintf("https://analyticsdata.googleapis.com/v1beta/properties/%s:runReport", propertyID)
+	requestBody := `{
+		"dateRanges": [{"startDate": "2024-01-01", "endDate": "today"}],
+		"dimensions": [{"name": "pagePath"}],
+		"metrics": [{"name": "screenPageViews"}],
+		"dimensionFilter": {
+			"filter": {
+				"fieldName": "pagePath",
+				"stringFilter": {
+					"matchType": "BEGINS_WITH",
+					"value": "/project/view/"
+				}
+			}
+		}
+	}`
 
-	data := &AnalyticsData{}
-
-	reqTopPages := map[string]interface{}{
-		"dateRanges": []map[string]string{
-			{"startDate": "30daysAgo", "endDate": "today"},
-		},
-		"metrics": []map[string]string{
-			{"name": "activeUsers"},
-			{"name": "screenPageViews"},
-			{"name": "userEngagementDuration"},
-		},
-		"dimensions": []map[string]string{
-			{"name": "pagePath"},
-		},
-		"limit": 6,
-	}
-
-	jsonBytes1, _ := json.Marshal(reqTopPages)
-	resp1, err := client.Post(url, "application/json", bytes.NewBuffer(jsonBytes1))
+	req, err := http.NewRequestWithContext(ctx, "POST", url, strings.NewReader(requestBody))
 	if err != nil {
-		return &AnalyticsData{LastError: fmt.Sprintf("Google Analytics API request failed: %v", err)}
+		return err
 	}
-	defer resp1.Body.Close()
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+accessToken)
 
-	body1, _ := io.ReadAll(resp1.Body)
-	if resp1.StatusCode != http.StatusOK {
-		return &AnalyticsData{LastError: fmt.Sprintf("GA4 API Error (Status %d): %s", resp1.StatusCode, string(body1))}
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
 	}
+	defer resp.Body.Close()
 
-	var gaResp1 struct {
-		Rows []struct {
-			DimensionValues []struct {
-				Value string `json:"value"`
-			} `json:"dimensionValues"`
-			MetricValues []struct {
-				Value string `json:"value"`
-			} `json:"metricValues"`
-		} `json:"rows"`
-	}
-	json.Unmarshal(body1, &gaResp1)
-
-	totalUsers := 0
-	totalViews := 0
-	totalDurationSec := 0.0
-
-	for _, row := range gaResp1.Rows {
-		var users, views int
-		var duration float64
-		fmt.Sscanf(row.MetricValues[0].Value, "%d", &users)
-		fmt.Sscanf(row.MetricValues[1].Value, "%d", &views)
-		fmt.Sscanf(row.MetricValues[2].Value, "%f", &duration)
-
-		totalUsers += users
-		totalViews += views
-		totalDurationSec += duration
-
-		path := "/"
-		if len(row.DimensionValues) > 0 {
-			path = row.DimensionValues[0].Value
-		}
-		data.TopPages = append(data.TopPages, PageStat{Path: path, Views: views})
+	if resp.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		log.Printf("[GA4 Sync Worker Error] API returned status %d: %s", resp.StatusCode, string(bodyBytes))
+		return nil
 	}
 
-	data.ActiveUsers = totalUsers
-	data.PageViews = totalViews
-
-	for i := range data.TopPages {
-		if totalViews > 0 {
-			data.TopPages[i].Percentage = (data.TopPages[i].Views * 100) / totalViews
-		}
+	var report ga4ReportResponse
+	if err := json.NewDecoder(resp.Body).Decode(&report); err != nil {
+		return err
 	}
 
-	if totalUsers > 0 {
-		avgSec := int(totalDurationSec / float64(totalUsers))
-		if avgSec >= 60 {
-			data.AvgDuration = fmt.Sprintf("%dm %ds", avgSec/60, avgSec%60)
-		} else {
-			data.AvgDuration = fmt.Sprintf("%ds", avgSec)
-		}
-	} else {
-		data.AvgDuration = "0s"
-	}
-
-	reqDaily := map[string]interface{}{
-		"dateRanges": []map[string]string{
-			{"startDate": "7daysAgo", "endDate": "today"},
-		},
-		"metrics": []map[string]string{
-			{"name": "screenPageViews"},
-		},
-		"dimensions": []map[string]string{
-			{"name": "date"},
-		},
-	}
-
-	jsonBytes2, _ := json.Marshal(reqDaily)
-	resp2, err := client.Post(url, "application/json", bytes.NewBuffer(jsonBytes2))
-	if err == nil && resp2.StatusCode == http.StatusOK {
-		defer resp2.Body.Close()
-		body2, _ := io.ReadAll(resp2.Body)
-
-		var gaResp2 struct {
-			Rows []struct {
-				DimensionValues []struct {
-					Value string `json:"value"`
-				} `json:"dimensionValues"`
-				MetricValues []struct {
-					Value string `json:"value"`
-				} `json:"metricValues"`
-			} `json:"rows"`
-		}
-		json.Unmarshal(body2, &gaResp2)
-
-		type tempDaily struct {
-			rawDate string
-			label   string
-			views   int
-		}
-		var temp []tempDaily
-
-		for _, row := range gaResp2.Rows {
-			if len(row.DimensionValues) > 0 && len(row.MetricValues) > 0 {
-				raw := row.DimensionValues[0].Value
-				var views int
-				fmt.Sscanf(row.MetricValues[0].Value, "%d", &views)
-
-				label := raw
-				if len(raw) == 8 {
-					t, err := time.Parse("20060102", raw)
-					if err == nil {
-						label = t.Format("Jan 02")
-					}
-				}
-				temp = append(temp, tempDaily{rawDate: raw, label: label, views: views})
+	for _, row := range report.Rows {
+		if len(row.DimensionValues) > 0 && len(row.MetricValues) > 0 {
+			path := row.DimensionValues[0].Value
+			slug := strings.TrimPrefix(path, "/project/view/")
+			if idx := strings.Index(slug, "?"); idx != -1 {
+				slug = slug[:idx]
 			}
-		}
-
-		sort.Slice(temp, func(i, j int) bool {
-			return temp[i].rawDate < temp[j].rawDate
-		})
-
-		var labels []string
-		var values []string
-		for _, d := range temp {
-			data.DailyViews = append(data.DailyViews, DailyStat{Date: d.label, Views: d.views})
-			labels = append(labels, fmt.Sprintf(`"%s"`, d.label))
-			values = append(values, fmt.Sprintf("%d", d.views))
-		}
-
-		data.DailyLabels = "[" + strings.Join(labels, ",") + "]"
-		data.DailyValues = "[" + strings.Join(values, ",") + "]"
-	}
-
-	if data.DailyLabels == "" {
-		data.DailyLabels = `["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]`
-		data.DailyValues = `[0,0,0,0,0,0,0]`
-	}
-
-	reqSources := map[string]interface{}{
-		"dateRanges": []map[string]string{
-			{"startDate": "30daysAgo", "endDate": "today"},
-		},
-		"metrics": []map[string]string{
-			{"name": "activeUsers"},
-		},
-		"dimensions": []map[string]string{
-			{"name": "sessionSource"},
-		},
-		"limit": 4,
-	}
-	jsonBytes3, _ := json.Marshal(reqSources)
-	resp3, err := client.Post(url, "application/json", bytes.NewBuffer(jsonBytes3))
-	if err == nil && resp3.StatusCode == http.StatusOK {
-		defer resp3.Body.Close()
-		body3, _ := io.ReadAll(resp3.Body)
-		var gaResp3 struct {
-			Rows []struct {
-				DimensionValues []struct {
-					Value string `json:"value"`
-				} `json:"dimensionValues"`
-				MetricValues []struct {
-					Value string `json:"value"`
-				} `json:"metricValues"`
-			} `json:"rows"`
-		}
-		json.Unmarshal(body3, &gaResp3)
-		for _, row := range gaResp3.Rows {
-			if len(row.DimensionValues) > 0 && len(row.MetricValues) > 0 {
-				src := row.DimensionValues[0].Value
-				if src == "(direct)" {
-					src = "Direct"
+			slug = strings.TrimSpace(slug)
+			if slug != "" {
+				var count int
+				_, _ = fmt.Sscanf(row.MetricValues[0].Value, "%d", &count)
+				if count > 0 {
+					_, _ = db.DB.ExecContext(ctx, "UPDATE projects SET views_count = $1 WHERE slug = $2", count, slug)
 				}
-				var u int
-				fmt.Sscanf(row.MetricValues[0].Value, "%d", &u)
-				data.Sources = append(data.Sources, TrafficSource{Source: src, Users: u})
 			}
 		}
 	}
-
-	gaCacheMu.Lock()
-	gaCacheData = data
-	gaCacheTime = time.Now()
-	gaCacheMu.Unlock()
-
-	return data
+	return nil
 }

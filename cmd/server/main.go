@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -36,6 +37,8 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Println("Connected to PostgreSQL successfully!")
+
+	services.StartGA4SyncWorker(context.Background())
 
 	// Static file server
 	fs := http.FileServer(http.Dir("./static"))
@@ -79,7 +82,6 @@ func main() {
 			return
 		}
 
-		_ = services.IncrementProjectViews(ctx, slug)
 		project, err := services.GetProjectBySlug(ctx, slug)
 		if err != nil || project == nil || !project.IsPublic {
 			w.WriteHeader(http.StatusNotFound)
