@@ -19,12 +19,6 @@ type GitHubStats struct {
 	LastUpdated string `json:"last_updated"`
 }
 
-type ghResponse struct {
-	Total struct {
-		LastYear int `json:"lastYear"`
-	} `json:"total"`
-}
-
 func GetGitHubStats(ctx context.Context, db *sql.DB) GitHubStats {
 	var currentStats GitHubStats
 	var updatedAt time.Time
@@ -37,7 +31,7 @@ func GetGitHubStats(ctx context.Context, db *sql.DB) GitHubStats {
 	err := db.QueryRowContext(ctx, `SELECT commits, last_updated, updated_at FROM github_stats WHERE id = 1`).Scan(&currentStats.Commits, &currentStats.LastUpdated, &updatedAt)
 
 	if err == nil && time.Since(updatedAt) < 1*time.Hour {
-		return currentStats
+			return currentStats
 	}
 
 	freshCount, ok := fetchCommitCountFromAPI()
@@ -66,18 +60,27 @@ func GetGitHubStats(ctx context.Context, db *sql.DB) GitHubStats {
 
 func fetchCommitCountFromAPI() (string, bool) {
 	client := http.Client{Timeout: 5 * time.Second}
-	resp, err := client.Get("https://github-contributions-api.jogruber.de/v4/theYogMehta?y=last")
+	currentYear := time.Now().Year()
+	resp, err := client.Get(fmt.Sprintf("https://github-contributions-api.jogruber.de/v4/theYogMehta?y=%d", currentYear))
 	if err != nil || resp.StatusCode != http.StatusOK {
 		return "", false
 	}
 	defer resp.Body.Close()
 
-	var data ghResponse
-	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil || data.Total.LastYear == 0 {
+	var data struct {
+		Total map[string]int `json:"total"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
 		return "", false
 	}
 
-	return fmt.Sprintf("%d commits", data.Total.LastYear), true
+	yearStr := fmt.Sprintf("%d", time.Now().Year())
+	count, exists := data.Total[yearStr]
+	if !exists || count == 0 {
+		return "", false
+	}
+
+	return fmt.Sprintf("%d commits in %d", count, time.Now().Year()), true
 }
 
 func downloadLatestChartSVG() {
